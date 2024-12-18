@@ -331,12 +331,13 @@ textarea {
     border: 2px solid #f4b400;
 }
 
+
 /* Footer Section */
 footer {
     background-color: #f4f4f4;
     padding: 2rem 1rem;
-    margin-top: 2rem;
     border-top: 1px solid #ddd;
+    text-align: center;
 }
 
 .footer-container {
