@@ -1,250 +1,102 @@
-/* General Styles */
-* {
+/* General Body Reset */
+html, body {
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-}
-
-body {
-    background-color: #f9f9f9;
-    color: #333;
-    line-height: 1.6;
-    transition: background 0.3s;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-h1, h2, h3 {
-    font-weight: 700;
-}
-
-/* Header */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 2rem;
-    background-color: #fff;
-    border-bottom: 1px solid #eaeaea;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-header .logo {
-    display: flex;
-    align-items: center;
-    font-size: 1.2rem;
-}
-
-header .dot {
-    height: 10px;
-    width: 10px;
-    background-color: #ffc107;
-    border-radius: 50%;
-    display: inline-block;
-    margin-right: 0.5rem;
-}
-
-header nav a {
-    margin-left: 1.5rem;
-    font-weight: 600;
-    color: #333;
-    transition: color 0.3s ease;
-}
-
-header nav a:hover {
-    color: #007bff;
-}
-
-/* Hero Section */
-.hero {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 4rem 2rem;
-    gap: 3rem;
-    background-color: #fff;
-}
-
-.hero .image-container {
-    flex: 1;
-    text-align: center;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 1s ease, transform 1s ease;
-}
-
-.hero .image-container img {
-    width: 250px;
-    height: 250px;
-    object-fit: cover;
-    border-radius: 50%;
-    border: 5px solid #eee;
-}
-
-.hero .content {
-    flex: 1;
-    text-align: left;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 1s ease, transform 1s ease;
-}
-
-.hero .content h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    color: #333;
-}
-
-.hero .content h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #666;
-}
-
-.hero .content p {
-    font-size: 1rem;
-    margin-bottom: 2rem;
-}
-
-.buttons {
-    display: flex;
-    gap: 1rem;
-}
-
-.circle-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    font-weight: 600;
-    color: #fff;
-    cursor: pointer;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.circle-btn.yellow { background-color: #ffc107; }
-.circle-btn.red { background-color: #ff5733; }
-.circle-btn.blue { background-color: #33b5ff; }
-
-.circle-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-/* Footer */
-footer {
-    background-color: #333;
-    color: #f9f9f9;
-    padding: 2rem 1rem;
-    position: relative;
-    opacity: 0;
-    transform: translateY(100%);
-    transition: opacity 0.8s ease, transform 0.8s ease;
-}
-
-footer .footer-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 1rem;
-    text-align: center;
-}
-
-footer strong {
-    display: block;
-    margin-bottom: 0.5rem;
-}
-
-footer a {
-    color: #ffc107;
-    transition: color 0.3s ease;
-}
-
-footer a:hover {
-    color: #fff;
-}
-
-/* Footer Visibility */
-body.scrolled footer {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Resume Page */
-.resume, .projects, .contact {
-    padding: 3rem 2rem;
-    background-color: #fff;
-    min-height: 100vh;
-}
-
-.resume h1, .projects h1, .contact h1 {
-    font-size: 2.5rem;
-    margin-bottom: 2rem;
-    text-align: center;
-}
-
-.resume h2, .projects h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.resume .experience, .resume .education, .resume .skills {
-    margin-bottom: 2rem;
-}
-
-.resume ul {
-    list-style: none;
-    padding-left: 1rem;
-}
-
-.resume li {
-    margin-bottom: 0.5rem;
-}
-
-/* Contact Form */
-form {
+    height: 100%; /* Ensures the full height of the viewport */
     display: flex;
     flex-direction: column;
-    max-width: 500px;
+}
+
+/* Main Content should grow and take remaining space */
+main {
+    flex: 1; /* Pushes the footer to the bottom */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    background-color: #f8f8f8;
+    padding: 10px 0;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+}
+
+/* Profile Image Styling */
+.profile-image {
+    width: 200px; /* Set a fixed width for image */
+    height: 200px; /* Maintain a 1:1 ratio */
+    object-fit: cover; /* Ensures image doesn't stretch */
+    border-radius: 50%; /* Circular image */
     margin: 0 auto;
-    gap: 1rem;
 }
 
-form input, form textarea, form button {
-    padding: 0.8rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
+/* Button Styling */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Space between buttons */
+    margin-top: 20px;
 }
 
-form textarea {
-    resize: vertical;
+.button {
+    width: 120px;
+    height: 120px;
+    line-height: 120px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    display: inline-block;
 }
 
-form button {
-    background-color: #ffc107;
-    color: #333;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+.button.resume { background-color: #f4b400; }
+.button.projects { background-color: #ea4335; }
+.button.contact { background-color: #34a853; }
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+    .button-container {
+        flex-direction: column; /* Stack buttons vertically on smaller screens */
+    }
+
+    .button {
+        width: 100px;
+        height: 100px;
+        line-height: 100px;
+        font-size: 14px;
+    }
+
+    .profile-image {
+        width: 150px;
+        height: 150px;
+    }
 }
 
-form button:hover {
-    background-color: #ffb007;
-}
+@media (max-width: 480px) {
+    h1 {
+        font-size: 24px;
+    }
 
-/* Scroll Animation */
-.image-container, .content {
-    opacity: 1;
-    transform: translateY(0);
+    p {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .button {
+        width: 80px;
+        height: 80px;
+        line-height: 80px;
+        font-size: 12px;
+    }
+
+    .profile-image {
+        width: 120px;
+        height: 120px;
+    }
 }
