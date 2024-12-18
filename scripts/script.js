@@ -1,41 +1,45 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Variables
-    const body = document.body;
-    const footer = document.querySelector('footer');
+document.addEventListener("DOMContentLoaded", () => {
+    // Elements to animate
     const imageContainer = document.querySelector('.image-container');
-    const contentContainer = document.querySelector('.content');
-    const buttons = document.querySelectorAll('.circle-btn');
+    const content = document.querySelector('.content');
+    const footer = document.querySelector('footer');
+
+    // Smooth Fade-In Animation for Hero Section on Page Load
+    setTimeout(() => {
+        if (imageContainer) imageContainer.style.opacity = '1';
+        if (imageContainer) imageContainer.style.transform = 'translateY(0)';
+        if (content) content.style.opacity = '1';
+        if (content) content.style.transform = 'translateY(0)';
+    }, 500);
 
     // Footer Visibility on Scroll
-    window.addEventListener('scroll', () => {
+    window.addEventListener("scroll", () => {
         if (window.scrollY > 100) {
-            body.classList.add('scrolled');
+            document.body.classList.add("scrolled");
         } else {
-            body.classList.remove('scrolled');
+            document.body.classList.remove("scrolled");
         }
     });
 
-    // Image and Content Fade-In Animations
-    function fadeInElements() {
-        // Trigger image fade-in
-        imageContainer.style.opacity = '1';
-        imageContainer.style.transform = 'translateY(0)';
-
-        // Trigger content fade-in
-        contentContainer.style.opacity = '1';
-        contentContainer.style.transform = 'translateY(0)';
-    }
-
-    // Call fade-in function after page load
-    fadeInElements();
-
-    // Add Button Click Effects
-    buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-            button.style.transform = 'scale(1.2)';
-            setTimeout(() => {
-                button.style.transform = 'scale(1)';
-            }, 200); // Reset after 200ms
+    // Button Visual Effects on Hover
+    const buttons = document.querySelectorAll('.circle-btn');
+    buttons.forEach(button => {
+        button.addEventListener('mouseover', () => {
+            button.style.transform = 'scale(1.1)';
+            button.style.transition = 'transform 0.3s ease';
+        });
+        button.addEventListener('mouseleave', () => {
+            button.style.transform = 'scale(1)';
         });
     });
+
+    // Contact Form Submission Handler (Dummy Example)
+    const contactForm = document.querySelector('form');
+    if (contactForm) {
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Thank you for reaching out! I will get back to you soon.');
+            contactForm.reset();
+        });
+    }
 });
