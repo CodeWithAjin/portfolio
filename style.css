@@ -3,21 +3,29 @@ body {
     font-family: 'Inter', sans-serif;
     color: #333;
     background: #f9f9f9;
+    scroll-behavior: smooth;
 }
 
-header {
+.header {
     background: #fff;
     border-bottom: 1px solid #eee;
-    padding: 0.5em 1em;
     position: sticky;
     top: 0;
     z-index: 1000;
+    transition: transform 0.3s, height 0.3s;
+}
+
+.header.shrink {
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(5px);
+    transform: translateY(-10px);
 }
 
 .navbar {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0.5em 1em;
 }
 
 .logo a {
@@ -40,9 +48,12 @@ header {
     color: #333;
     font-weight: 500;
     transition: color 0.3s;
+    position: relative;
+    padding: 0.5em;
 }
 
-.nav-links li a:hover {
+.nav-links li a:hover,
+.nav-links li a.active {
     color: #0077b6;
 }
 
@@ -54,10 +65,14 @@ header {
     min-height: 60vh;
     text-align: center;
     padding: 2em;
+    position: relative;
+    overflow: hidden;
 }
 
 .hero-content {
     max-width: 600px;
+    opacity: 0;
+    animation: fadeInUp 1s forwards;
 }
 
 .profile-pic-large {
@@ -66,38 +81,45 @@ header {
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 1em;
+    animation: fadeIn 1s forwards;
+    opacity: 0;
 }
 
-.hero-content h1 {
-    font-size: 2.5em;
-    margin-bottom: 0.5em;
+.hero-content h1,
+.hero-content p,
+.hero-content a.cta-btn {
+    opacity: 0;
 }
 
-.highlight {
-    color: #0077b6;
+.fade-in-down {
+    animation: fadeInDown 1s forwards;
 }
 
-.cta-btn {
-    background: #0077b6;
-    color: #fff;
-    padding: 0.7em 1.4em;
-    text-decoration: none;
-    border-radius: 5px;
-    margin-top: 1em;
-    display: inline-block;
-    transition: background 0.3s;
+.fade-in-down.delay-1 {
+    animation-delay: 0.5s;
 }
 
-.cta-btn:hover {
-    background: #005f89;
+.fade-in-down.delay-2 {
+    animation-delay: 1s;
+}
+
+.fade-in-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+/* When section is visible */
+.fade-in-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .section {
     padding: 2em 1em;
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 2em auto;
     background: #fff;
-    margin-bottom: 1em;
     border-radius: 5px;
     box-shadow: 0 0 8px rgba(0,0,0,0.05);
 }
@@ -182,6 +204,11 @@ header {
     color: #fff;
     padding: 0.5em 1em;
     border-radius: 5px;
+    transition: transform 0.3s;
+}
+
+.skills-list li:hover {
+    transform: scale(1.05);
 }
 
 .contact-info {
@@ -213,5 +240,73 @@ footer {
     background: #fafafa;
     border-top: 1px solid #eee;
     margin-top: 1em;
-    position: relative;
+}
+
+.cta-btn {
+    background: #0077b6;
+    color: #fff;
+    padding: 0.7em 1.4em;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 1em;
+    display: inline-block;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.cta-btn:hover {
+    background: #005f89;
+    transform: scale(1.05);
+}
+
+#back-to-top {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    background: #0077b6;
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2em;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+#back-to-top:hover {
+    background: #005f89;
+}
+
+@keyframes fadeInUp {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeInDown {
+    0% {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
