@@ -11,17 +11,7 @@ body {
     color: #333;
     line-height: 1.6;
     scroll-behavior: smooth;
-}
-
-a {
-    text-decoration: none;
-    color: inherit;
-}
-
-.container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1.5rem;
+    overflow-x: hidden;
 }
 
 /* Header Section */
@@ -32,6 +22,9 @@ header {
     padding: 1.5rem 2rem;
     background-color: #fff;
     border-bottom: 1px solid #ddd;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
 }
 
 .logo {
@@ -66,29 +59,37 @@ nav a:hover {
     color: #f4b400;
 }
 
-/* Hero Section */
+/* Hero Section - Adjusted Ratios */
 .hero {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4rem 2rem;
-    gap: 3rem;
+    padding: 6rem 2rem; /* Adjust padding for better proportion */
+    gap: 4rem;
+    min-height: 80vh;
+    position: relative;
 }
 
 .image-container {
     flex-shrink: 0;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fadeInUp 1s forwards;
 }
 
 .profile-pic {
-    width: 300px;
-    height: 300px;
+    width: 350px;
+    height: 350px;
     border-radius: 50%;
     object-fit: cover;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .content {
-    max-width: 600px;
+    max-width: 500px;
+    opacity: 0;
+    transform: translateY(50px);
+    animation: fadeInUp 1.2s forwards;
 }
 
 .content h1 {
@@ -118,225 +119,28 @@ nav a:hover {
     font-weight: 600;
     text-decoration: none;
     color: #fff;
-    transition: background 0.3s, color 0.3s;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.yellow {
-    background-color: #f4b400;
+.circle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
-.yellow:hover {
-    background-color: #fff;
-    color: #f4b400;
-}
+.yellow { background-color: #f4b400; }
+.red { background-color: #ff4b4b; }
+.blue { background-color: #56c7d6; }
 
-.red {
-    background-color: #ff4b4b;
-}
-
-.red:hover {
-    background-color: #fff;
-    color: #ff4b4b;
-}
-
-.blue {
-    background-color: #56c7d6;
-}
-
-.blue:hover {
-    background-color: #fff;
-    color: #56c7d6;
-}
-
-/* Resume Section */
-.resume-section {
-    margin: 3rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.resume-section h1 {
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.resume-section h2 {
-    font-size: 1.75rem;
-    color: #0077b6;
-    margin-bottom: 1rem;
-}
-
-.experience,
-.education {
-    margin-bottom: 2rem;
-}
-
-.experience h3,
-.education h3 {
-    font-size: 1.3rem;
-    color: #333;
-}
-
-.company {
-    color: #555;
-    font-weight: 600;
-}
-
-.duration {
-    color: #777;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
-}
-
-.experience ul {
-    margin-left: 1.5rem;
-    list-style: disc;
-}
-
-.experience ul li {
-    margin-bottom: 0.5rem;
-}
-
-/* Projects Section */
-.projects-section {
-    margin: 3rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.projects-section h1 {
-    font-size: 2.5rem;
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.project {
-    margin-bottom: 2rem;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 1.5rem;
-}
-
-.project:last-child {
-    border-bottom: none;
-}
-
-.project h2 {
-    font-size: 1.75rem;
-    margin-bottom: 0.5rem;
-    color: #0077b6;
-}
-
-.project p {
-    color: #555;
-}
-
-.project strong {
-    color: #333;
-}
-
-/* Contact Section */
-.contact-section {
-    margin: 3rem auto;
-    padding: 2rem;
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    text-align: center;
-}
-
-.contact-section h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
-    color: #333;
-}
-
-.contact-details {
-    margin-bottom: 2rem;
-}
-
-.contact-details p {
-    font-size: 1rem;
-    margin-bottom: 0.5rem;
-}
-
-.contact-details a {
-    color: #0077b6;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-.contact-details a:hover {
-    text-decoration: underline;
-}
-
-.contact-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    justify-content: center;
-}
-
-.form-group {
-    flex: 1 1 45%;
-    text-align: left;
-}
-
-.form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-
-.form-group input,
-.form-group textarea {
-    width: 100%;
-    padding: 0.8rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-    color: #333;
-}
-
-.form-group input:focus,
-.form-group textarea:focus {
-    outline: none;
-    border-color: #0077b6;
-}
-
-textarea {
-    resize: none;
-}
-
-.submit-btn {
-    background-color: #f4b400;
-    color: #fff;
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.8rem 2rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.submit-btn:hover {
-    background-color: #fff;
-    color: #f4b400;
-    border: 2px solid #f4b400;
-}
-
-/* Footer Section */
+/* Footer Section - Visible only when scrolled */
 footer {
     background-color: #f4f4f4;
     padding: 2rem 1rem;
-    margin-top: 2rem;
     border-top: 1px solid #ddd;
+    position: fixed;
+    bottom: -100px; /* Hidden initially */
+    left: 0;
+    width: 100%;
+    transition: bottom 0.5s ease;
 }
 
 .footer-container {
@@ -357,7 +161,6 @@ footer {
     display: block;
     font-weight: 600;
     margin-bottom: 0.5rem;
-    color: #333;
 }
 
 .footer-container a {
@@ -376,4 +179,17 @@ footer {
     font-size: 0.9rem;
     margin-top: 1rem;
     color: #777;
+}
+
+/* Keyframes for Animations */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Show Footer on Scroll */
+body.scrolled footer {
+    bottom: 0;
 }
