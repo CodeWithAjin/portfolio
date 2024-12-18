@@ -1,167 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="description" content="Portfolio website of Data Scientist, Ajinsyam S" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajinsyam S | Data Scientist</title>
-    <link rel="stylesheet" href="style.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header class="header">
-        <nav class="navbar">
-            <div class="logo"><a href="#">AS</a></div>
-            <ul class="nav-links">
-                <li><a href="#profile">Profile</a></li>
-                <li><a href="#experience">Experience</a></li>
-                <li><a href="#skills">Skills</a></li>
-                <li><a href="#education">Education</a></li>
-                <li><a href="#contact">Contact</a></li>
-            </ul>
-        </nav>
+    <!-- Header Section -->
+    <header>
+        <div class="container">
+            <h1>Ajinsyam S</h1>
+            <p>Data Scientist | AI Specialist</p>
+        </div>
     </header>
 
-    <button id="back-to-top">↑</button>
+    <!-- Navigation Bar -->
+    <nav>
+        <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
 
-    <section class="hero">
-        <div class="hero-content">
-            <img src="images/profile.jpg" alt="Ajinsyam S" class="profile-pic-large"/>
-            <h1 class="fade-in-down">Hello, I'm <span class="highlight">Ajinsyam S</span></h1>
-            <p class="fade-in-down delay-1">A Data Scientist with 6 years of expertise in Machine Learning, NLP, and Data Analysis.</p>
-            <a class="cta-btn fade-in-down delay-2" href="#contact">Get in Touch</a>
-        </div>
-    </section>
-
-    <section id="profile" class="section fade-in-on-scroll">
-        <h2>Profile</h2>
-        <div class="profile-section">
-            <div class="profile-text">
+    <!-- About Section -->
+    <section id="about" class="section">
+        <div class="container">
+            <img src="images/profile.jpg" alt="Profile Picture" class="profile-pic">
+            <div class="content">
+                <h2>About Me</h2>
                 <p>
-                    Experienced Data Scientist with 6 years of expertise in Machine Learning, NLP, and data analysis. 
-                    Proven ability to design innovative AI solutions that address complex challenges across diverse domains. 
-                    Skilled in aligning technical strategies with business objectives, delivering impactful results.
-                </p>
-                <p>
-                    A continuous learner and effective communicator, driven by a passion for leveraging data insights to foster 
-                    innovation and meaningful advancements.
+                    I’m a passionate Data Scientist with over 6 years of experience in Machine Learning, NLP, and AI. 
+                    I thrive on solving complex challenges through data-driven solutions and innovative algorithms.
                 </p>
             </div>
-            <aside class="details-aside">
-                <h3>Details</h3>
-                <p>Calicut, Kerala<br>
-                Phone: <a href="tel:+917736712023">+91 7736712023</a><br>
-                Email: <a href="mailto:ajinsyams@gmail.com">ajinsyams@gmail.com</a></p>
-                <h3>Hobbies</h3>
-                <p>Hiking</p>
-            </aside>
         </div>
     </section>
 
-    <section id="experience" class="section fade-in-on-scroll">
-        <h2>Employment History</h2>
-        
-        <div class="experience-item">
-            <h3>Data Scientist at Deloitte USI <span class="duration">| October 2021 – Present</span></h3>
-            <p>
-                At Deloitte USI, I drive innovation through advanced Machine Learning and Artificial Intelligence, delivering 
-                scalable solutions to enhance efficiency and decision-making across diverse domains.
-            </p>
-            <h4>Key Projects</h4>
-            <ul>
-                <li><strong>Gen AI Automation for ERP Systems – SOX Control | Fit-Gap Analysis:</strong>
-                    <ul>
-                        <li>Automated comparison of legacy controls with similarity search algorithms to identify the most relevant controls for clients.</li>
-                        <li>Enabled informed decision-making by providing actionable insights.</li>
-                        <li>Reduced manual effort in control analysis by leveraging Gen AI-driven intelligence.</li>
-                    </ul>
-                </li>
-                <li><strong>ERP Ticket Handling:</strong>
-                    <ul>
-                        <li>Developed an AI-powered solution for handling Operate and Defect tickets in ERP systems.</li>
-                        <li>Automated ticket analysis by extracting insights from text and images using Gen AI intelligence.</li>
-                        <li>Enhanced ticket resolution accuracy and reduced processing time, enabling swift actions.</li>
-                    </ul>
-                </li>
-                <li><strong>CMAQ Analytics | LLM-based Chatbot for Cyber Data Analysis:</strong>
-                    <ul>
-                        <li>Designed a chatbot to analyze structured cyber data and provide natural language answers to complex queries.</li>
-                        <li>Delivered actionable insights through dynamically generated charts for better user comprehension.</li>
-                        <li>Improved data accessibility and decision-making capabilities for cyber data analysis teams.</li>
-                    </ul>
-                </li>
-                <li><strong>Data Quality and Compliance Chatbot:</strong>
-                    <ul>
-                        <li>Built a chatbot to assist users in querying compliance documents stored in vector databases.</li>
-                        <li>Integrated memory features to handle follow-up questions effectively.</li>
-                        <li>Provided linked references for user verification, ensuring response accuracy and reliability.</li>
-                        <li>Streamlined Data Quality and Compliance tasks, enhancing operational efficiency.</li>
-                    </ul>
-                </li>
-            </ul>
+    <!-- Experience Section -->
+    <section id="experience" class="section">
+        <div class="container">
+            <h2>Experience</h2>
+            <div class="experience-item">
+                <h3>Data Scientist - Deloitte USI</h3>
+                <p>October 2021 - Present</p>
+                <ul>
+                    <li>Developed AI automation for ERP systems, enhancing control analysis.</li>
+                    <li>Built LLM-based chatbots for cyber data analysis.</li>
+                    <li>Automated ticket analysis and reduced resolution time by 30%.</li>
+                </ul>
+            </div>
+            <div class="experience-item">
+                <h3>Data Engineer - Ernst & Young</h3>
+                <p>October 2018 - October 2021</p>
+                <ul>
+                    <li>Designed scalable BI systems for multinational clients.</li>
+                    <li>Implemented data pipelines using Azure Data Factory.</li>
+                </ul>
+            </div>
         </div>
+    </section>
 
-        <div class="experience-item">
-            <h3>Data Engineer at Ernst & Young, Kochi <span class="duration">| October 2018 – October 2021</span></h3>
-            <p>
-                As a Data Engineer at EY, I spearheaded data migration and transformation projects, leveraging modern cloud platforms 
-                to deliver scalable solutions for business reporting and analytics.
-            </p>
-            <h4>Key Projects</h4>
-            <ul>
-                <li><strong>BI System and Data Transformation for Fonterra:</strong>
-                    <ul>
-                        <li>Designed and implemented a scalable BI system for a multinational dairy co-operative, enabling data-driven decisions.</li>
-                        <li>Migrated and transformed critical SAP data into Azure platforms, optimizing analytics pipelines.</li>
-                        <li>Developed metadata-driven architectures for reliable, high-quality performance.</li>
-                    </ul>
-                </li>
-                <li><strong>GDAP: Global Data Analytics Platform Development:</strong>
-                    <ul>
-                        <li>Supported data scientists across five regions in deploying and managing solutions on Azure.</li>
-                        <li>Utilized Azure Data Factory (ADF) for seamless data workflows and integrated Power BI for billing solutions.</li>
-                    </ul>
-                </li>
+    <!-- Projects Section -->
+    <section id="projects" class="section">
+        <div class="container">
+            <h2>Projects</h2>
+            <div class="project">
+                <h3>Gen AI Automation for ERP</h3>
+                <p>Automated control systems analysis using NLP-based algorithms.</p>
+            </div>
+            <div class="project">
+                <h3>Data Quality Chatbot</h3>
+                <p>Built a compliance chatbot to query document databases using LLMs.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section id="skills" class="section">
+        <div class="container">
+            <h2>Skills</h2>
+            <ul class="skills-list">
+                <li>Machine Learning</li>
+                <li>NLP</li>
+                <li>Data Visualization</li>
+                <li>Prompt Engineering</li>
+                <li>Leadership</li>
             </ul>
         </div>
     </section>
 
-    <section id="skills" class="section fade-in-on-scroll">
-        <h2>Skills</h2>
-        <ul class="skills-list">
-            <li>Gen AI</li>
-            <li>Prompt Engineering</li>
-            <li>Machine Learning</li>
-            <li>Natural Language Processing</li>
-            <li>Data Processing</li>
-            <li>Data Visualization</li>
-            <li>Communication Skills</li>
-            <li>Leadership Skills</li>
-        </ul>
-    </section>
-
-    <section id="education" class="section fade-in-on-scroll">
-        <h2>Education</h2>
-        <p>
-            <strong>Mechanical Engineering</strong>, Govt. Engineering College Thrissur (May 2014 – April 2018)
-        </p>
-    </section>
-
-    <section id="contact" class="section fade-in-on-scroll">
-        <h2>Contact</h2>
-        <p>If you are interested in working together or would like to learn more about my experience, feel free to reach out:</p>
-        <ul class="contact-info">
-            <li>Email: <a href="mailto:ajinsyams@gmail.com">ajinsyams@gmail.com</a></li>
-            <li>Phone: <a href="tel:+917736712023">+91 7736712023</a></li>
-            <!-- Replace with your actual LinkedIn and GitHub links -->
-            <li>LinkedIn: <a href="#" target="_blank">linkedin.com/in/ajinsyam</a></li>
-            <li>GitHub: <a href="#" target="_blank">github.com/ajinsyam</a></li>
-        </ul>
+    <!-- Contact Section -->
+    <section id="contact" class="section">
+        <div class="container">
+            <h2>Contact</h2>
+            <p>Email: <a href="mailto:ajinsyams@gmail.com">ajinsyams@gmail.com</a></p>
+            <p>Phone: <a href="tel:+917736712023">+91 7736712023</a></p>
+        </div>
     </section>
 
     <footer>
-        <p>&copy; 2024 Ajinsyam S. All rights reserved.</p>
+        <p>&copy; 2024 Ajinsyam S. All Rights Reserved.</p>
     </footer>
-    <script src="script.js"></script>
+
+    <script src="scripts/script.js"></script>
 </body>
 </html>
