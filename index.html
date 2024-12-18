@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
+    <header class="header">
         <nav class="navbar">
             <div class="logo"><a href="#">AS</a></div>
             <ul class="nav-links">
@@ -22,16 +22,18 @@
         </nav>
     </header>
 
+    <button id="back-to-top">↑</button>
+
     <section class="hero">
         <div class="hero-content">
             <img src="images/profile.jpg" alt="Ajinsyam S" class="profile-pic-large"/>
-            <h1>Hello, I'm <span class="highlight">Ajinsyam S</span></h1>
-            <p>A Data Scientist with 6 years of expertise in Machine Learning, NLP, and Data Analysis.</p>
-            <a class="cta-btn" href="#contact">Get in Touch</a>
+            <h1 class="fade-in-down">Hello, I'm <span class="highlight">Ajinsyam S</span></h1>
+            <p class="fade-in-down delay-1">A Data Scientist with 6 years of expertise in Machine Learning, NLP, and Data Analysis.</p>
+            <a class="cta-btn fade-in-down delay-2" href="#contact">Get in Touch</a>
         </div>
     </section>
 
-    <section id="profile" class="section">
+    <section id="profile" class="section fade-in-on-scroll">
         <h2>Profile</h2>
         <div class="profile-section">
             <div class="profile-text">
@@ -48,7 +50,7 @@
             <aside class="details-aside">
                 <h3>Details</h3>
                 <p>Calicut, Kerala<br>
-                Phone: 7736712023<br>
+                Phone: <a href="tel:+917736712023">+91 7736712023</a><br>
                 Email: <a href="mailto:ajinsyams@gmail.com">ajinsyams@gmail.com</a></p>
                 <h3>Hobbies</h3>
                 <p>Hiking</p>
@@ -56,7 +58,7 @@
         </div>
     </section>
 
-    <section id="experience" class="section">
+    <section id="experience" class="section fade-in-on-scroll">
         <h2>Employment History</h2>
         
         <div class="experience-item">
@@ -78,7 +80,7 @@
                     <ul>
                         <li>Developed an AI-powered solution for handling Operate and Defect tickets in ERP systems.</li>
                         <li>Automated ticket analysis by extracting insights from text and images using Gen AI intelligence.</li>
-                        <li>Enhanced ticket resolution accuracy and reduced processing time, enabling human reviewers to take swift actions.</li>
+                        <li>Enhanced ticket resolution accuracy and reduced processing time, enabling swift actions.</li>
                     </ul>
                 </li>
                 <li><strong>CMAQ Analytics | LLM-based Chatbot for Cyber Data Analysis:</strong>
@@ -109,14 +111,14 @@
             <ul>
                 <li><strong>BI System and Data Transformation for Fonterra:</strong>
                     <ul>
-                        <li>Designed and implemented a scalable BI system for a multinational dairy co-operative, enabling data-driven decisions and operational efficiency.</li>
-                        <li>Migrated and transformed critical SAP data into Azure platforms, ensuring seamless integration and optimized analytics pipelines.</li>
-                        <li>Developed metadata-driven architectures and parameterized workflows for reliable, high-quality performance.</li>
+                        <li>Designed and implemented a scalable BI system for a multinational dairy co-operative, enabling data-driven decisions.</li>
+                        <li>Migrated and transformed critical SAP data into Azure platforms, optimizing analytics pipelines.</li>
+                        <li>Developed metadata-driven architectures for reliable, high-quality performance.</li>
                     </ul>
                 </li>
                 <li><strong>GDAP: Global Data Analytics Platform Development:</strong>
                     <ul>
-                        <li>Developed a platform to support data scientists across five regions in deploying and managing solutions on Azure.</li>
+                        <li>Supported data scientists across five regions in deploying and managing solutions on Azure.</li>
                         <li>Utilized Azure Data Factory (ADF) for seamless data workflows and integrated Power BI for billing solutions.</li>
                     </ul>
                 </li>
@@ -124,7 +126,7 @@
         </div>
     </section>
 
-    <section id="skills" class="section">
+    <section id="skills" class="section fade-in-on-scroll">
         <h2>Skills</h2>
         <ul class="skills-list">
             <li>Gen AI</li>
@@ -138,14 +140,14 @@
         </ul>
     </section>
 
-    <section id="education" class="section">
+    <section id="education" class="section fade-in-on-scroll">
         <h2>Education</h2>
         <p>
             <strong>Mechanical Engineering</strong>, Govt. Engineering College Thrissur (May 2014 – April 2018)
         </p>
     </section>
 
-    <section id="contact" class="section">
+    <section id="contact" class="section fade-in-on-scroll">
         <h2>Contact</h2>
         <p>If you are interested in working together or would like to learn more about my experience, feel free to reach out:</p>
         <ul class="contact-info">
@@ -160,5 +162,6 @@
     <footer>
         <p>&copy; 2024 Ajinsyam S. All rights reserved.</p>
     </footer>
+    <script src="script.js"></script>
 </body>
 </html>
