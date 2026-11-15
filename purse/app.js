@@ -414,19 +414,35 @@
   $('scanBtn').addEventListener('click', function () {
     $('cam').hidden = false; camMsg('Point at any UPI QR');
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camMsg('Camera isn’t available here. Use Photo or UPI ID.'); return; }
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }).then(function (s) {
+    // Ask for a sharp picture: iPhone hands web pages 640x480 unless asked for more.
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }).then(function (s) {
       if ($('cam').hidden) { s.getTracks().forEach(function (t) { t.stop(); }); return; }
       stream = s; var v = $('video'); v.srcObject = s; v.play().catch(function () {});
+      try { s.getVideoTracks()[0].applyConstraints({ advanced: [{ focusMode: 'continuous' }] }).catch(function () {}); } catch (e) {}
       scanning = true;
-      var last = 0, busy = false;
+      var last = 0, busy = false, n = 0, lastBad = '';
       (function tick(now) {
         if (!scanning) return;
-        if (!busy && v.readyState >= 2 && now - last > 120 && v.videoWidth && readerReady()) {
-          last = now; busy = true;
-          var sc = Math.min(1, 720 / v.videoWidth);
-          work.width = Math.round(v.videoWidth * sc); work.height = Math.round(v.videoHeight * sc);
-          wctx.drawImage(v, 0, 0, work.width, work.height);
-          decode(false).then(function (t) { busy = false; if (t && scanning) useText(t, ''); });
+        if (!readerReady()) camMsg('Loading the scanner…');
+        else if (!busy && v.readyState >= 2 && now - last > 90 && v.videoWidth) {
+          last = now; busy = true; n++;
+          var vw = v.videoWidth, vh = v.videoHeight;
+          if (n % 3) {
+            // most frames: zoom into the middle, where the gold frame is
+            var side = Math.min(vw, vh) * (n % 3 === 1 ? .62 : .85), sx = (vw - side) / 2, sy = (vh - side) / 2, out = Math.min(800, side);
+            work.width = work.height = Math.round(out);
+            wctx.drawImage(v, sx, sy, side, side, 0, 0, work.width, work.height);
+          } else {
+            var sc = Math.min(1, 960 / Math.max(vw, vh));
+            work.width = Math.round(vw * sc); work.height = Math.round(vh * sc);
+            wctx.drawImage(v, 0, 0, work.width, work.height);
+          }
+          decode(n % 6 === 0).then(function (t) {
+            busy = false;
+            if (!t || !scanning) return;
+            var err = useText(t, '');
+            if (err && err !== lastBad) { lastBad = err; if (navigator.vibrate) navigator.vibrate(15); }
+          });
         }
         requestAnimationFrame(tick);
       })(0);

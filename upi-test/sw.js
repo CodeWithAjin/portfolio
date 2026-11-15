@@ -1,6 +1,6 @@
 /* Handoff service worker: makes the app open instantly and work offline
    (scanning, amount entry and QR making need no network). */
-var VERSION = 'handoff-v3-1';
+var VERSION = 'handoff-v3-2';
 var SHELL = [
   './',
   './index.html',
@@ -10,7 +10,7 @@ var SHELL = [
   './icons/apple-touch-icon.png'
 ];
 var LIBS = [
-  'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js',
+  'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
   'https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js'
 ];
 

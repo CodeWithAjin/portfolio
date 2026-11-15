@@ -1,6 +1,6 @@
 /* Purse service worker: opens instantly and works offline
    (the purse, history and scanning need no network). */
-var VERSION = 'purse-v1-1';
+var VERSION = 'purse-v1-2';
 var SHELL = [
   './',
   './index.html',
@@ -10,11 +10,10 @@ var SHELL = [
   './icons/apple-touch-icon.png',
   './app.css',
   './app.js',
-  './currency.js'
+  './currency.js',
+  './vendor/jsQR.js'
 ];
-var LIBS = [
-  'https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js'
-];
+var LIBS = [];
 
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) {
@@ -56,7 +55,7 @@ self.addEventListener('fetch', function (e) {
   if (!ours && !cdn) return;
   e.respondWith(caches.match(req).then(function (hit) {
     var net = fetch(req).then(function (r) {
-      if (r && (r.ok || r.type === 'opaque')) { var copy = r.clone(); caches.open(VERSION).then(function (c) { c.put(req, copy); }); }
+      if (r && r.ok) { var copy = r.clone(); caches.open(VERSION).then(function (c) { c.put(req, copy); }); }
       return r;
     }).catch(function () { return hit; });
     return hit || net;
