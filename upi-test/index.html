@@ -3,297 +3,582 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F3F5F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B110F" media="(prefers-color-scheme: dark)">
 <title>UPI handoff test</title>
 <style>
   :root {
     color-scheme: light;
-    --paper: #F2F0F9;
+    --bg: #F3F5F4;
     --surface: #FFFFFF;
-    --ink: #1F1B3D;
-    --muted: #5F5A80;
-    --line: #D9D4EC;
-    --accent: #5B4BB5;
+    --surface-2: #EDF1EF;
+    --ink: #0E1A15;
+    --muted: #5A6B63;
+    --line: #DCE3DF;
+    --accent: #0A7556;
+    --accent-press: #08604A;
     --accent-ink: #FFFFFF;
-    --good: #2A7447;
-    --bad: #A63E2D;
-    --warn-bg: #FBF3D0;
-    --warn-ink: #5A4500;
-    --note-ink: #1F1B3D;
-    box-sizing: border-box;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
+    --accent-soft: #DCF0E8;
+    --accent-soft-ink: #075A42;
+    --bad: #B03C2B;
+    --bad-soft: #FBE7E3;
+    --warn-bg: #FFF3D1;
+    --warn-ink: #5A4100;
+    --shadow: 0 1px 2px rgba(14,26,21,.06), 0 6px 20px rgba(14,26,21,.06);
+    --radius: 20px;
+    --safe-b: env(safe-area-inset-bottom, 0px);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --paper: #14122A;
-      --surface: #1F1C3B;
-      --ink: #ECE9FA;
-      --muted: #A7A1CC;
-      --line: #37335E;
-      --accent: #A99DEC;
-      --accent-ink: #14122A;
-      --good: #7BD19A;
-      --bad: #F09A88;
-      --warn-bg: #3B3414;
-      --warn-ink: #F3E3A0;
+      --bg: #0B110F;
+      --surface: #141C19;
+      --surface-2: #1B2521;
+      --ink: #E7EFEB;
+      --muted: #94A69E;
+      --line: #25322D;
+      --accent: #3FCB9B;
+      --accent-press: #33B386;
+      --accent-ink: #04140E;
+      --accent-soft: #12322A;
+      --accent-soft-ink: #8FE6C6;
+      --bad: #F08C7A;
+      --bad-soft: #3A1E19;
+      --warn-bg: #362D14;
+      --warn-ink: #F2DC9E;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --paper: #14122A;
-    --surface: #1F1C3B;
-    --ink: #ECE9FA;
-    --muted: #A7A1CC;
-    --line: #37335E;
-    --accent: #A99DEC;
-    --accent-ink: #14122A;
-    --good: #7BD19A;
-    --bad: #F09A88;
-    --warn-bg: #3B3414;
-    --warn-ink: #F3E3A0;
+    --bg: #0B110F; --surface: #141C19; --surface-2: #1B2521; --ink: #E7EFEB; --muted: #94A69E;
+    --line: #25322D; --accent: #3FCB9B; --accent-press: #33B386; --accent-ink: #04140E;
+    --accent-soft: #12322A; --accent-soft-ink: #8FE6C6; --bad: #F08C7A; --bad-soft: #3A1E19;
+    --warn-bg: #362D14; --warn-ink: #F2DC9E;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.25);
   }
-  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+
   *, *::before, *::after { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    margin: 0;
-    background: var(--paper);
-    color: var(--ink);
-    font: 16px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    margin: 0; min-height: 100vh; min-height: 100dvh;
+    background: var(--bg); color: var(--ink);
+    font: 16px/1.45 -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
   }
-  main { max-width: 520px; margin: 0 auto; padding: 20px 16px 48px; }
-  h1, h2, .amount, .note-chip, .app-open {
-    font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
-  }
-  h1 { font-size: 1.7rem; line-height: 1.15; margin: 0 0 6px; letter-spacing: -0.01em; }
-  .lede { margin: 0 0 22px; color: var(--muted); }
-  h2 { font-size: 1.15rem; margin: 0 0 12px; }
-  section {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 18px;
-    padding: 16px;
-    margin-bottom: 14px;
-  }
-  section[data-locked="true"] > *:not(h2):not(.lock-hint) { opacity: .38; pointer-events: none; }
-  .lock-hint { color: var(--muted); margin: -6px 0 12px; font-size: .92rem; }
-  section:not([data-locked="true"]) .lock-hint { display: none; }
-
-  button, .app-open, .file-btn {
-    font: inherit; font-weight: 600;
-    border-radius: 12px;
-    border: 1px solid var(--line);
-    background: var(--surface);
-    color: var(--ink);
-    padding: 12px 14px;
-    min-height: 48px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    display: inline-flex; align-items: center; justify-content: center;
-    -webkit-tap-highlight-color: transparent;
-  }
-  button.primary, .app-open { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
-  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible, .file-btn:focus-within {
-    outline: 3px solid var(--accent); outline-offset: 2px;
-  }
-  .stack { display: grid; gap: 10px; }
-  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .file-btn { position: relative; overflow: hidden; }
-  .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; font-size: 100px; }
-
-  .viewfinder { position: relative; margin-top: 12px; border-radius: 14px; overflow: hidden; background: #000; aspect-ratio: 1 / 1; }
-  .viewfinder video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .viewfinder::after {
-    content: ""; position: absolute; inset: 14%;
-    border: 3px solid rgba(255,255,255,.85); border-radius: 16px; pointer-events: none;
-  }
-  .viewfinder button { position: absolute; right: 10px; bottom: 10px; min-height: 40px; padding: 8px 12px; }
-
-  details { margin-top: 12px; }
-  summary { cursor: pointer; color: var(--muted); padding: 6px 0; }
-  textarea, input[type="text"] {
-    font: inherit; color: var(--ink);
-    background: var(--paper);
-    border: 1px solid var(--line); border-radius: 12px;
-    padding: 12px; width: 100%;
-  }
-  textarea { min-height: 76px; resize: vertical; margin-bottom: 8px; }
-
-  .msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-ink); font-size: .94rem; }
-
-  .payee { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--line); }
-  .payee-name { font-weight: 700; font-size: 1.1rem; overflow-wrap: anywhere; }
-  .payee-id { color: var(--muted); overflow-wrap: anywhere; }
-  .facts { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 4px; font-size: .94rem; }
-  .facts li::before { content: "•"; color: var(--accent); margin-right: 8px; }
-  .raw { font: 12px/1.4 ui-monospace, Menlo, Consolas, monospace; overflow-wrap: anywhere; color: var(--muted); margin: 6px 0 0; }
-
-  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; margin-top: 8px; }
-  .seg button { border: 0; border-radius: 0; min-height: 44px; padding: 8px 10px; font-weight: 500; background: transparent; color: var(--muted); }
-  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
-  .seg-label { display: block; margin-top: 14px; font-size: .94rem; color: var(--muted); }
-
-  .amount-row { display: flex; align-items: baseline; gap: 8px; border-bottom: 2px solid var(--ink); padding-bottom: 4px; }
-  .amount-row span { font-size: 2.2rem; font-weight: 700; font-family: ui-rounded, system-ui, sans-serif; }
-  .amount-row .amount {
-    font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, sans-serif;
-    font-size: 2.6rem; line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums;
-    border: 0; background: transparent; padding: 0; border-radius: 0; min-width: 0; width: auto; flex: 1;
-  }
-  .amount-row .amount:focus-visible { outline: none; }
-  .amount-row:focus-within { border-bottom-color: var(--accent); }
-  .notes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; min-height: 34px; }
-  .note-chip {
-    color: var(--note-ink); font-weight: 700; font-variant-numeric: tabular-nums;
-    padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(31,27,61,.25);
-  }
-  .note-chip.coin { border-radius: 999px; }
-  .hint { color: var(--muted); font-size: .92rem; margin: 10px 0 0; }
-
-  .app-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
-  .app-open { font-size: 1.05rem; }
-  .app-open[aria-disabled="true"] { opacity: .45; pointer-events: none; }
-  .copy { min-width: 92px; font-weight: 500; }
-
-  #result { border-color: var(--accent); border-width: 2px; }
-  #result p { margin: 0 0 12px; }
-  .outcome-good { border-color: var(--good); color: var(--good); }
-  .outcome-bad { border-color: var(--bad); color: var(--bad); }
-
-  .log { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-  .log li { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .94rem; overflow-wrap: anywhere; }
-  .log .outcome { font-weight: 700; }
-  .log .ok { color: var(--good); }
-  .log .no { color: var(--bad); }
-  .log .meta { color: var(--muted); }
-  .summary { margin: 0 0 12px; font-weight: 600; }
-  .empty { color: var(--muted); margin: 0; }
+  button, input, textarea { font: inherit; color: inherit; }
   [hidden] { display: none !important; }
-  @media (prefers-reduced-motion: no-preference) {
-    button, .app-open { transition: transform .08s ease; }
-    button:active, .app-open:active { transform: scale(.98); }
+  .num { font-variant-numeric: tabular-nums; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- app bar ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 20;
+    padding: calc(env(safe-area-inset-top, 0px) + 10px) 16px 10px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    -webkit-backdrop-filter: saturate(1.4) blur(14px); backdrop-filter: saturate(1.4) blur(14px);
+    border-bottom: 1px solid transparent;
+  }
+  .bar-in { max-width: 480px; margin: 0 auto; display: flex; align-items: center; gap: 8px; min-height: 44px; }
+  .bar h1 { font-size: 1.06rem; font-weight: 700; margin: 0; flex: 1; letter-spacing: -.01em; }
+  .icon-btn {
+    width: 44px; height: 44px; border-radius: 999px; border: 0; background: transparent;
+    display: inline-grid; place-items: center; cursor: pointer; color: var(--ink);
+  }
+  .icon-btn:active { background: var(--surface-2); }
+  .icon-btn svg { width: 22px; height: 22px; }
+  .pill-btn {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px;
+    border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer;
+    font-size: .9rem; font-weight: 600;
+  }
+  .count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: .75rem; display: inline-grid; place-items: center; }
+
+  main { max-width: 480px; margin: 0 auto; padding: 8px 16px calc(120px + var(--safe-b)); }
+  .view { animation: in .22s ease both; }
+  @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .test-banner {
+    display: flex; gap: 10px; align-items: flex-start;
+    background: var(--warn-bg); color: var(--warn-ink);
+    border-radius: 14px; padding: 10px 12px; font-size: .9rem; margin: 4px 0 16px;
+  }
+  .test-banner svg { flex: none; width: 18px; height: 18px; margin-top: 2px; }
+
+  .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 22px 4px 8px; }
+  .title { font-size: 1.6rem; line-height: 1.15; font-weight: 750; letter-spacing: -.02em; margin: 6px 4px 6px; }
+  .sub { color: var(--muted); margin: 0 4px 18px; }
+
+  .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; }
+  .card + .card { margin-top: 12px; }
+
+  /* ---------- buttons ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 52px; padding: 0 18px; border-radius: 16px; border: 1px solid var(--line);
+    background: var(--surface); font-weight: 650; cursor: pointer; text-decoration: none; color: var(--ink);
+    -webkit-tap-highlight-color: transparent; width: 100%;
+  }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:active { background: var(--accent-press); }
+  .btn.soft { background: var(--accent-soft); border-color: transparent; color: var(--accent-soft-ink); }
+  .btn[disabled], .btn[aria-disabled="true"] { opacity: .45; pointer-events: none; }
+  .btn:active { transform: scale(.985); }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .scan-hero {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+  }
+  .tile {
+    display: grid; justify-items: start; gap: 18px; padding: 16px; min-height: 128px;
+    border-radius: var(--radius); border: 0; background: var(--surface); box-shadow: var(--shadow);
+    text-align: left; cursor: pointer; position: relative; overflow: hidden;
+  }
+  .tile.primary { background: var(--accent); color: var(--accent-ink); }
+  .tile .ic { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, currentColor 14%, transparent); }
+  .tile .ic svg { width: 22px; height: 22px; }
+  .tile b { font-size: 1.02rem; display: block; }
+  .tile small { opacity: .8; font-size: .84rem; }
+  .tile:active { transform: scale(.985); }
+  .tile input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .85rem; margin: 20px 4px 12px; }
+  .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+  .field { display: grid; gap: 6px; margin-bottom: 12px; }
+  .field label { font-size: .88rem; font-weight: 600; color: var(--muted); }
+  .field input {
+    width: 100%; min-height: 52px; padding: 0 14px; border-radius: 14px;
+    border: 1.5px solid var(--line); background: var(--surface-2);
+    font-size: 1.05rem;
+  }
+  .field input:focus { border-color: var(--accent); outline: none; background: var(--surface); }
+  .field .err { color: var(--bad); font-size: .86rem; }
+
+  .msg { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--warn-bg); color: var(--warn-ink); font-size: .92rem; }
+
+  /* ---------- payee chip ---------- */
+  .payee { display: flex; align-items: center; gap: 12px; }
+  .avatar {
+    width: 48px; height: 48px; flex: none; border-radius: 999px;
+    background: var(--accent-soft); color: var(--accent-soft-ink);
+    display: grid; place-items: center; font-weight: 750; font-size: 1.05rem; letter-spacing: .02em;
+  }
+  .payee-text { min-width: 0; flex: 1; }
+  .payee-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .payee-id { color: var(--muted); font-size: .9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: .74rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); margin-top: 4px; }
+  .badge.merchant { background: var(--accent-soft); color: var(--accent-soft-ink); }
+  .link-btn { border: 0; background: none; color: var(--accent); font-weight: 650; cursor: pointer; padding: 10px 4px; min-height: 44px; }
+
+  /* ---------- amount ---------- */
+  .amount-wrap { text-align: center; padding: 28px 0 8px; }
+  .amount-line { display: inline-flex; align-items: baseline; justify-content: center; gap: 4px; max-width: 100%; }
+  .amount-line .cur { font-size: 2.4rem; font-weight: 600; color: var(--muted); }
+  .amount-line input {
+    border: 0; background: transparent; padding: 0; text-align: left;
+    font-size: 4rem; line-height: 1.05; font-weight: 750; letter-spacing: -.03em;
+    width: 1.2ch; min-width: 1.2ch; max-width: 8ch; caret-color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .amount-line input:focus { outline: none; }
+  .amount-line input::placeholder { color: var(--line); }
+  .amount-words { color: var(--muted); font-size: .92rem; min-height: 1.4em; margin-top: 6px; }
+  .chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+  .chip { min-height: 40px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-weight: 650; cursor: pointer; }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .hint { color: var(--muted); font-size: .88rem; margin: 10px 4px 0; }
+  .hint.center { text-align: center; }
+
+  /* ---------- pay summary ---------- */
+  .summary { display: flex; align-items: center; gap: 12px; }
+  .summary .amt { margin-left: auto; text-align: right; }
+  .summary .amt b { font-size: 1.5rem; font-weight: 750; letter-spacing: -.02em; display: block; }
+  .summary .amt button { font-size: .85rem; min-height: 32px; padding: 0; }
+
+  /* ---------- segmented tabs ---------- */
+  .tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; background: var(--surface-2); border-radius: 16px; margin: 18px 0 14px; }
+  .tab { min-height: 44px; border: 0; border-radius: 12px; background: transparent; font-weight: 650; font-size: .92rem; color: var(--muted); cursor: pointer; }
+  .tab[aria-selected="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+  .method-head { display: flex; gap: 12px; align-items: flex-start; margin: 2px 4px 14px; }
+  .method-head p { margin: 0; color: var(--muted); font-size: .92rem; }
+  .method-head b { display: block; font-size: 1.05rem; color: var(--ink); margin-bottom: 2px; }
+  .tag { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; vertical-align: 2px; margin-left: 6px; }
+  .tag.ok { background: var(--accent-soft); color: var(--accent-soft-ink); }
+  .tag.risk { background: var(--bad-soft); color: var(--bad); }
+
+  /* app list */
+  .apps { display: grid; gap: 0; }
+  .app {
+    display: flex; align-items: center; gap: 12px; padding: 12px 4px; min-height: 64px;
+    text-decoration: none; color: inherit; border-bottom: 1px solid var(--line); cursor: pointer;
+    -webkit-tap-highlight-color: transparent; background: none; border-left: 0; border-right: 0; border-top: 0; width: 100%; text-align: left;
+  }
+  .apps > :last-child { border-bottom: 0; }
+  .app:active { background: var(--surface-2); }
+  .mono {
+    width: 42px; height: 42px; flex: none; border-radius: 12px; display: grid; place-items: center;
+    font-weight: 800; font-size: .9rem; background: var(--surface-2); color: var(--ink); letter-spacing: -.02em;
+  }
+  .app-text { flex: 1; min-width: 0; }
+  .app-text b { display: block; font-weight: 650; }
+  .app-text small { color: var(--muted); font-size: .84rem; }
+  .app .go { width: 20px; height: 20px; color: var(--muted); flex: none; }
+  .app .last { font-size: .76rem; font-weight: 700; padding: 3px 8px; border-radius: 999px; }
+  .last.ok { background: var(--accent-soft); color: var(--accent-soft-ink); }
+  .last.no { background: var(--bad-soft); color: var(--bad); }
+
+  details.adv { margin-top: 10px; }
+  details.adv summary { cursor: pointer; color: var(--muted); font-size: .9rem; padding: 8px 4px; min-height: 40px; list-style: none; }
+  details.adv summary::-webkit-details-marker { display: none; }
+  details.adv summary::before { content: "＋ "; }
+  details.adv[open] summary::before { content: "－ "; }
+  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; padding: 4px; background: var(--surface-2); border-radius: 14px; margin-top: 6px; }
+  .seg button { min-height: 40px; border: 0; border-radius: 10px; background: transparent; font-size: .86rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+
+  /* copy rows */
+  .copy-row { display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-bottom: 1px solid var(--line); }
+  .copy-row:last-of-type { border-bottom: 0; }
+  .copy-row .k { font-size: .8rem; color: var(--muted); font-weight: 600; }
+  .copy-row .v { font-weight: 700; font-size: 1.08rem; overflow-wrap: anywhere; }
+  .copy-row > div { flex: 1; min-width: 0; }
+  .small-btn { min-height: 40px; padding: 0 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 650; font-size: .9rem; cursor: pointer; flex: none; }
+  .small-btn.done { background: var(--accent-soft); color: var(--accent-soft-ink); border-color: transparent; }
+
+  .steps { list-style: none; counter-reset: s; padding: 0; margin: 14px 0 0; display: grid; gap: 10px; }
+  .steps li { counter-increment: s; display: flex; gap: 12px; align-items: flex-start; font-size: .94rem; }
+  .steps li::before {
+    content: counter(s); flex: none; width: 26px; height: 26px; border-radius: 999px;
+    display: grid; place-items: center; font-size: .8rem; font-weight: 750;
+    background: var(--accent-soft); color: var(--accent-soft-ink);
+  }
+
+  /* QR */
+  .qr-box { display: grid; justify-items: center; gap: 10px; }
+  .qr-box img { width: min(280px, 78vw); height: auto; border-radius: 18px; background: #fff; box-shadow: var(--shadow); -webkit-touch-callout: default; }
+  .qr-actions { display: grid; grid-template-columns: 1fr; gap: 8px; width: 100%; margin-top: 6px; }
+
+  /* sticky footer */
+  .footer {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 15;
+    padding: 12px 16px calc(12px + var(--safe-b));
+    background: linear-gradient(to top, var(--bg) 70%, color-mix(in srgb, var(--bg) 0%, transparent));
+  }
+  .footer-in { max-width: 480px; margin: 0 auto; }
+
+  /* camera */
+  .cam { position: fixed; inset: 0; z-index: 50; background: #000; display: grid; }
+  .cam video { width: 100%; height: 100%; object-fit: cover; grid-area: 1 / 1; }
+  .cam-ui { grid-area: 1 / 1; display: grid; grid-template-rows: auto 1fr auto; padding: calc(env(safe-area-inset-top,0px) + 12px) 16px calc(var(--safe-b) + 20px); color: #fff; }
+  .cam-top { display: flex; justify-content: space-between; align-items: center; }
+  .cam-top .icon-btn { color: #fff; background: rgba(0,0,0,.4); }
+  .cam-frame { align-self: center; justify-self: center; width: min(72vw, 300px); aspect-ratio: 1; border-radius: 28px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); border: 3px solid rgba(255,255,255,.9); }
+  .cam-hint { text-align: center; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+
+  /* sheet */
+  .backdrop { position: fixed; inset: 0; z-index: 40; background: rgba(5,12,9,.45); animation: fade .2s ease both; }
+  @keyframes fade { from { opacity: 0; } }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 41;
+    background: var(--surface); border-radius: 24px 24px 0 0;
+    padding: 10px 16px calc(16px + var(--safe-b));
+    max-width: 520px; margin: 0 auto; box-shadow: 0 -8px 30px rgba(0,0,0,.2);
+    animation: up .25s cubic-bezier(.2,.8,.2,1) both;
+  }
+  @keyframes up { from { transform: translateY(100%); } }
+  .grip { width: 40px; height: 5px; border-radius: 9px; background: var(--line); margin: 0 auto 12px; }
+  .sheet h2 { margin: 0 0 4px; font-size: 1.2rem; }
+  .sheet .lead { color: var(--muted); margin: 0 0 14px; font-size: .92rem; }
+  .outcomes { display: grid; gap: 8px; margin-top: 12px; }
+  .outcome { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--line); background: var(--surface); font-weight: 650; cursor: pointer; text-align: left; }
+  .outcome .dot { width: 10px; height: 10px; border-radius: 99px; flex: none; background: var(--bad); }
+  .outcome.good .dot { background: var(--accent); }
+  .outcome.skip { border: 0; justify-content: center; color: var(--muted); font-weight: 600; }
+  .outcome.skip .dot { display: none; }
+
+  /* results */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { background: var(--surface); border-radius: 16px; padding: 12px; box-shadow: var(--shadow); }
+  .stat b { display: block; font-size: 1.3rem; letter-spacing: -.02em; }
+  .stat span { color: var(--muted); font-size: .8rem; }
+  .log { list-style: none; padding: 0; margin: 0; }
+  .log li { display: flex; gap: 12px; padding: 14px 4px; border-bottom: 1px solid var(--line); }
+  .log li:last-child { border-bottom: 0; }
+  .log .dot { width: 10px; height: 10px; margin-top: 7px; border-radius: 99px; flex: none; background: var(--bad); }
+  .log .dot.ok { background: var(--accent); }
+  .log .t { flex: 1; min-width: 0; }
+  .log .t b { display: block; }
+  .log .t small { color: var(--muted); display: block; overflow-wrap: anywhere; }
+  .log .a { font-weight: 700; white-space: nowrap; }
+  .empty { text-align: center; color: var(--muted); padding: 28px 12px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(96px + var(--safe-b)); transform: translateX(-50%);
+    z-index: 60; background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 999px;
+    font-weight: 600; font-size: .92rem; box-shadow: var(--shadow); max-width: calc(100% - 32px); text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .btn:active, .tile:active { transform: none; }
   }
 </style>
 </head>
 <body>
+
+<header class="bar">
+  <div class="bar-in">
+    <button class="icon-btn" id="back" type="button" aria-label="Back" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+    </button>
+    <h1 id="barTitle">UPI handoff test</h1>
+    <button class="pill-btn" id="openResults" type="button">Results <span class="count num" id="count">0</span></button>
+  </div>
+</header>
+
 <main>
-  <h1>UPI handoff test</h1>
-  <p class="lede">Scan a QR, set an amount, open a payment app, then note what happened. Use ₹1 while testing: a payment that goes through is real.</p>
-
-  <section id="s1" aria-labelledby="h1a">
-    <h2 id="h1a">1. Get the QR</h2>
-    <div class="two">
-      <button class="primary" id="camBtn" type="button">Scan with camera</button>
-      <label class="file-btn">Use a photo<input id="photo" type="file" accept="image/*"></label>
+  <!-- ============ 1. PAYEE ============ -->
+  <section class="view" id="v-payee" aria-labelledby="t-payee">
+    <div class="test-banner" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
+      <span>Test tool. Payments that go through are real, so test with <b>₹1</b>.</span>
     </div>
-    <div class="viewfinder" id="finder" hidden>
-      <video id="video" playsinline muted></video>
-      <button type="button" id="camStop">Stop</button>
-    </div>
-    <details id="pasteBox">
-      <summary>Or paste the QR text or a UPI ID</summary>
-      <textarea id="paste" placeholder="upi://pay?pa=name@bank&pn=Name" autocapitalize="off" autocorrect="off" spellcheck="false"></textarea>
-      <button type="button" id="pasteUse">Use this text</button>
-    </details>
-    <p class="msg" id="msg1" role="status" hidden></p>
+    <h2 class="title" id="t-payee">Who are you paying?</h2>
+    <p class="sub">Scan their UPI QR or enter their UPI ID.</p>
 
-    <div class="payee" id="payee" hidden>
-      <div class="payee-name" id="pName"></div>
-      <div class="payee-id" id="pId"></div>
-      <ul class="facts" id="pFacts"></ul>
-      <span class="seg-label" id="kindLabel">Record this QR as</span>
-      <div class="seg" role="group" aria-labelledby="kindLabel">
-        <button type="button" data-kind="shop" aria-pressed="false">Shop QR</button>
-        <button type="button" data-kind="personal" aria-pressed="false">Personal QR</button>
+    <div class="scan-hero">
+      <button class="tile primary" id="camBtn" type="button">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><path d="M8 12h8"/></svg></span>
+        <span><b>Scan QR</b><small>Use the camera</small></span>
+      </button>
+      <label class="tile">
+        <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span>
+        <span><b>From photo</b><small>Pick a QR image</small></span>
+        <input id="photo" type="file" accept="image/*" aria-label="Pick a photo of a QR code">
+      </label>
+    </div>
+    <p class="msg" id="scanMsg" role="status" hidden></p>
+
+    <div class="divider">or enter it</div>
+
+    <form class="card" id="idForm" novalidate>
+      <div class="field">
+        <label for="vpa">UPI ID or QR text</label>
+        <input id="vpa" type="text" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="name@bank">
+        <span class="err" id="vpaErr" hidden></span>
       </div>
-      <details>
-        <summary>Show the scanned text</summary>
-        <p class="raw" id="pRaw"></p>
+      <div class="field">
+        <label for="pname">Name <span style="font-weight:500">(optional)</span></label>
+        <input id="pname" type="text" autocomplete="off" placeholder="Shown in the payment app">
+      </div>
+      <button class="btn primary" type="submit">Continue</button>
+    </form>
+  </section>
+
+  <!-- ============ 2. AMOUNT ============ -->
+  <section class="view" id="v-amount" aria-labelledby="t-amount" hidden>
+    <div class="card">
+      <div class="payee">
+        <div class="avatar" data-avatar aria-hidden="true"></div>
+        <div class="payee-text">
+          <div class="payee-name" data-name></div>
+          <div class="payee-id" data-id></div>
+          <span class="badge" data-kind></span>
+        </div>
+        <button class="link-btn" type="button" data-change>Change</button>
+      </div>
+    </div>
+
+    <h2 class="sr" id="t-amount">Amount</h2>
+    <div class="amount-wrap">
+      <label class="amount-line">
+        <span class="cur" aria-hidden="true">₹</span>
+        <input id="amount" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Amount in rupees" aria-describedby="amountWords amountHint">
+      </label>
+      <div class="amount-words" id="amountWords" aria-live="polite"></div>
+      <div class="chips" role="group" aria-label="Quick amounts">
+        <button class="chip num" type="button" data-amt="1">₹1</button>
+        <button class="chip num" type="button" data-amt="10">₹10</button>
+        <button class="chip num" type="button" data-amt="50">₹50</button>
+        <button class="chip num" type="button" data-amt="100">₹100</button>
+      </div>
+      <p class="hint center" id="amountHint" hidden></p>
+    </div>
+  </section>
+
+  <!-- ============ 3. PAY ============ -->
+  <section class="view" id="v-pay" aria-labelledby="t-pay" hidden>
+    <div class="card">
+      <div class="summary">
+        <div class="avatar" data-avatar aria-hidden="true"></div>
+        <div class="payee-text">
+          <div class="payee-name" data-name></div>
+          <div class="payee-id" data-id></div>
+          <span class="badge" data-kind></span>
+        </div>
+        <div class="amt">
+          <b class="num" id="payAmt"></b>
+          <button class="link-btn" type="button" id="editAmt">Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="sr" id="t-pay">Choose how to pay</h2>
+    <div class="tabs" role="tablist" aria-label="Payment method">
+      <button class="tab" role="tab" id="tab-direct" aria-controls="p-direct" data-tab="direct">One tap</button>
+      <button class="tab" role="tab" id="tab-copy" aria-controls="p-copy" data-tab="copy">Copy &amp; pay</button>
+      <button class="tab" role="tab" id="tab-qr" aria-controls="p-qr" data-tab="qr">QR</button>
+    </div>
+
+    <!-- one tap -->
+    <div role="tabpanel" id="p-direct" aria-labelledby="tab-direct">
+      <div class="method-head">
+        <p><b>Open the app with everything filled in <span class="tag" id="directTag"></span></b><span id="directNote"></span></p>
+      </div>
+      <div class="card" style="padding:4px 12px"><div class="apps" id="directApps"></div></div>
+      <details class="adv" id="modeBox">
+        <summary>What to send to the app</summary>
+        <div class="seg" role="group" aria-label="What to send">
+          <button type="button" data-mode="keep">QR as scanned</button>
+          <button type="button" data-mode="minimal">Only ID, name, amount</button>
+        </div>
+        <p class="hint">Try a shop QR both ways. A signed shop QR can be refused once an amount is added.</p>
       </details>
     </div>
-  </section>
 
-  <section id="s2" aria-labelledby="h2a" data-locked="true">
-    <h2 id="h2a">2. Set the amount</h2>
-    <p class="lock-hint">Scan a QR first.</p>
-    <label class="amount-row">
-      <span aria-hidden="true">₹</span>
-      <input class="amount" id="amount" type="text" inputmode="decimal" placeholder="1" aria-label="Amount in rupees" autocomplete="off">
-    </label>
-    <div class="notes" id="notes" aria-live="polite"></div>
-    <p class="hint" id="amountHint" hidden></p>
-
-    <span class="seg-label" id="modeLabel">What to send to the payment app</span>
-    <div class="seg" role="group" aria-labelledby="modeLabel">
-      <button type="button" data-mode="keep" aria-pressed="true">QR as scanned + amount</button>
-      <button type="button" data-mode="minimal" aria-pressed="false">Only ID, name, amount</button>
+    <!-- copy & pay -->
+    <div role="tabpanel" id="p-copy" aria-labelledby="tab-copy" hidden>
+      <div class="method-head">
+        <p><b>Copy the UPI ID, pay inside the app <span class="tag ok">Reliable</span></b>The payment starts inside the app, so personal UPI IDs are allowed.</p>
+      </div>
+      <div class="card" style="padding:4px 12px">
+        <div class="copy-row">
+          <div><div class="k">UPI ID</div><div class="v" id="copyId"></div></div>
+          <button class="small-btn" type="button" id="copyIdBtn">Copy</button>
+        </div>
+        <div class="copy-row">
+          <div><div class="k">Amount</div><div class="v num" id="copyAmt"></div></div>
+          <button class="small-btn" type="button" id="copyAmtBtn">Copy</button>
+        </div>
+      </div>
+      <p class="eyebrow">Copy ID and open</p>
+      <div class="card" style="padding:4px 12px"><div class="apps" id="copyApps"></div></div>
+      <ol class="steps">
+        <li><span>In the app, choose <b>Pay UPI ID</b> (or “To UPI ID”).</span></li>
+        <li><span>Paste the ID, check the name, enter <b class="num" id="stepAmt"></b>.</span></li>
+        <li><span>Pay, then come back here and record what happened.</span></li>
+      </ol>
     </div>
-    <p class="hint">Run each QR both ways. A signed shop QR may be rejected once an amount is added to it.</p>
-  </section>
 
-  <section id="s3" aria-labelledby="h3a" data-locked="true">
-    <h2 id="h3a">3. Open a payment app</h2>
-    <p class="lock-hint">Scan a QR first.</p>
-    <div class="stack" id="apps"></div>
-    <details>
-      <summary>Other link forms to try</summary>
-      <div class="stack" id="appsAlt"></div>
-      <p class="hint" id="altHint"></p>
-    </details>
-    <p class="hint">If a button does nothing, tap Copy link and paste it into the browser’s address bar.</p>
-  </section>
-
-  <section id="result" aria-labelledby="hr" hidden>
-    <h2 id="hr">What happened?</h2>
-    <p id="resultLead"></p>
-    <input type="text" id="resultNote" placeholder="What did the app say? (optional)" autocomplete="off">
-    <div class="stack" style="margin-top:10px">
-      <button type="button" class="outcome-good" data-outcome="Paid">Paid</button>
-      <button type="button" class="outcome-bad" data-outcome="Opened, payment blocked">Opened, but the payment was blocked</button>
-      <button type="button" class="outcome-bad" data-outcome="Opened, wrong details">Opened with wrong or missing details</button>
-      <button type="button" class="outcome-bad" data-outcome="App didn’t open">App didn’t open</button>
-      <button type="button" data-outcome="">Don’t record this one</button>
+    <!-- QR -->
+    <div role="tabpanel" id="p-qr" aria-labelledby="tab-qr" hidden>
+      <div class="method-head">
+        <p><b>Scan a QR with the amount in it <span class="tag ok">Reliable</span></b>Nothing to type: the app reads the ID and amount from the image.</p>
+      </div>
+      <div class="card">
+        <div class="qr-box">
+          <img id="qrImg" alt="UPI QR code for this payment">
+          <p class="msg" id="qrMsg" hidden></p>
+          <div class="qr-actions">
+            <button class="btn primary" type="button" id="qrSave">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+              Save QR to Photos
+            </button>
+            <button class="btn" type="button" id="qrDone">I’ve tried it, record result</button>
+          </div>
+        </div>
+      </div>
+      <ol class="steps">
+        <li><span>Save the QR to Photos (or screenshot this screen).</span></li>
+        <li><span>Open your UPI app and tap <b>Scan</b>.</span></li>
+        <li><span>Tap the gallery or photo icon in the scanner and pick the saved QR.</span></li>
+        <li><span>Check the name and amount, then pay.</span></li>
+      </ol>
     </div>
   </section>
 
-  <section id="logSec" aria-labelledby="hl">
-    <h2 id="hl">Results</h2>
-    <p class="summary" id="summary" hidden></p>
-    <p class="empty" id="empty">Nothing recorded yet. Each attempt you make shows up here.</p>
-    <ul class="log" id="log"></ul>
-    <div class="two" id="logActions" style="margin-top:12px" hidden>
-      <button type="button" id="copyLog">Copy results</button>
-      <button type="button" id="clearLog">Clear results</button>
+  <!-- ============ RESULTS ============ -->
+  <section class="view" id="v-results" aria-labelledby="t-results" hidden>
+    <h2 class="title" id="t-results">Results</h2>
+    <p class="sub">Every attempt you record, newest first.</p>
+    <div class="stats" id="stats"></div>
+    <p class="eyebrow">Attempts</p>
+    <div class="card" style="padding:4px 12px">
+      <ul class="log" id="log"></ul>
+      <p class="empty" id="empty">Nothing recorded yet.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px" id="logActions">
+      <button class="btn" type="button" id="copyLog">Copy results</button>
+      <button class="btn" type="button" id="clearLog">Clear</button>
     </div>
   </section>
 </main>
 
-<script>
-  function loadAltReader() {
-    var s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js';
-    document.head.appendChild(s);
-  }
-</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js" onerror="loadAltReader()"></script>
-<script>
-/* ---------- pure logic (start) ---------- */
-var APPS = {
-  gpay:    { name: 'Google Pay', pkg: 'com.google.android.apps.nbu.paisa.user', forms: ['tez://upi/pay', 'gpay://upi/pay'] },
-  phonepe: { name: 'PhonePe',    pkg: 'com.phonepe.app',                        forms: ['phonepe://pay'] },
-  paytm:   { name: 'Paytm',      pkg: 'net.one97.paytm',                        forms: ['paytmmp://upi/pay', 'paytmmp://pay'] },
-  any:     { name: 'Any UPI app', pkg: '',                                      forms: ['upi://pay'] }
-};
-var NOTES = [
-  [500, '#C3BEB0'], [200, '#F2BC57'], [100, '#BBAEE3'], [50, '#86D2D2'],
-  [20, '#D6DC72'], [10, '#CDA283'], [5, '#D8D8DE'], [2, '#D8D8DE'], [1, '#D8D8DE']
-];
+<div class="footer" id="footer" hidden>
+  <div class="footer-in">
+    <button class="btn primary" type="button" id="footBtn">Continue</button>
+  </div>
+</div>
 
-function safeDecode(s) {
-  try { return decodeURIComponent(String(s).replace(/\+/g, ' ')); } catch (e) { return String(s); }
-}
+<!-- camera -->
+<div class="cam" id="cam" hidden role="dialog" aria-modal="true" aria-label="Scan a QR code">
+  <video id="video" playsinline muted></video>
+  <div class="cam-ui">
+    <div class="cam-top">
+      <span style="font-weight:700">Scan QR</span>
+      <button class="icon-btn" id="camClose" type="button" aria-label="Close camera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="cam-frame" aria-hidden="true"></div>
+    <div class="cam-hint">Fit the QR inside the frame</div>
+  </div>
+</div>
+
+<!-- outcome sheet -->
+<div id="sheetWrap" hidden>
+  <div class="backdrop" id="sheetBackdrop"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="grip" aria-hidden="true"></div>
+    <h2 id="sheetTitle">How did it go?</h2>
+    <p class="lead" id="sheetLead"></p>
+    <div class="field" style="margin:0">
+      <label for="sheetNote">What did the app say? (optional)</label>
+      <input id="sheetNote" type="text" autocomplete="off" placeholder="e.g. bank limit exceeded">
+    </div>
+    <div class="outcomes">
+      <button class="outcome good" type="button" data-outcome="Paid"><span class="dot"></span>Paid</button>
+      <button class="outcome" type="button" data-outcome="Blocked"><span class="dot"></span>App opened, payment refused</button>
+      <button class="outcome" type="button" data-outcome="Wrong details"><span class="dot"></span>App opened with wrong details</button>
+      <button class="outcome" type="button" data-outcome="Didn’t open"><span class="dot"></span>App didn’t open</button>
+      <button class="outcome skip" type="button" data-outcome=""><span class="dot"></span>Don’t record</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+  function loadAlt(src) { var s = document.createElement('script'); s.src = src; document.head.appendChild(s); }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js" onerror="loadAlt('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js')"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" onerror="loadAlt('https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js')"></script>
+<script>
+/* ================= pure logic ================= */
+var APPS = [
+  { id: 'gpay',    name: 'Google Pay',    mono: 'G',   pay: 'tez://upi/pay',     open: 'gpay://',     pkg: 'com.google.android.apps.nbu.paisa.user', known: true },
+  { id: 'phonepe', name: 'PhonePe',       mono: 'Pe',  pay: 'phonepe://pay',     open: 'phonepe://',  pkg: 'com.phonepe.app',  known: true },
+  { id: 'paytm',   name: 'Paytm',         mono: 'P',   pay: 'paytmmp://upi/pay', open: 'paytmmp://',  pkg: 'net.one97.paytm',  known: true },
+  { id: 'bhim',    name: 'BHIM',          mono: 'B',   pay: 'bhim://upi/pay',    open: 'bhim://',     pkg: 'in.org.npci.upiapp', known: false },
+  { id: 'cred',    name: 'CRED',          mono: 'C',   pay: 'credpay://upi/pay', open: 'credpay://',  pkg: 'com.dreamplug.androidapp', known: false },
+  { id: 'any',     name: 'Any UPI app',   mono: 'UPI', pay: 'upi://pay',         open: '',            pkg: '', known: true }
+];
+var METHOD_LABEL = { direct: 'One tap', copy: 'Copy & pay', qr: 'QR' };
+
+function safeDecode(s) { try { return decodeURIComponent(String(s).replace(/\+/g, ' ')); } catch (e) { return String(s); } }
 
 function parseTlv(s) {
   var out = [], i = 0;
@@ -313,7 +598,6 @@ var VPA_RE = /^[\w.\-]{2,}@[a-z][\w.\-]*$/i;
 function parseQr(text) {
   var raw = String(text || '').trim();
   if (!raw) return null;
-
   var m = raw.match(/^upi:\/\/([a-z]+)\/?\?(.*)$/i);
   if (m) {
     var parts = m[2].split('&').filter(Boolean).map(function (p) {
@@ -324,12 +608,9 @@ function parseQr(text) {
       for (var i = 0; i < parts.length; i++) if (parts[i].k.toLowerCase() === k) return safeDecode(parts[i].v);
       return '';
     };
-    return {
-      format: 'upi', action: m[1].toLowerCase(), raw: raw, parts: parts,
-      pa: get('pa'), pn: get('pn'), mc: get('mc'), am: get('am'), tr: get('tr'), signed: !!get('sign')
-    };
+    return { format: 'upi', action: m[1].toLowerCase(), raw: raw, parts: parts,
+      pa: get('pa'), pn: get('pn'), mc: get('mc'), am: get('am'), tr: get('tr'), signed: !!get('sign') };
   }
-
   if (/^0002\d\d/.test(raw)) {
     var top = parseTlv(raw);
     if (top) {
@@ -337,8 +618,7 @@ function parseQr(text) {
       top.forEach(function (t) {
         var n = parseInt(t[0], 10);
         if (n >= 26 && n <= 51 && !q.pa) {
-          var sub = parseTlv(t[1]) || [];
-          sub.forEach(function (st) { if (!q.pa && VPA_RE.test(st[1])) q.pa = st[1]; });
+          (parseTlv(t[1]) || []).forEach(function (st) { if (!q.pa && VPA_RE.test(st[1])) q.pa = st[1]; });
         }
         if (t[0] === '52') q.mc = t[1];
         if (t[0] === '54') q.am = t[1];
@@ -347,10 +627,7 @@ function parseQr(text) {
       return q;
     }
   }
-
-  if (VPA_RE.test(raw)) {
-    return { format: 'vpa', action: 'pay', raw: raw, parts: [], pa: raw, pn: '', mc: '', am: '', tr: '', signed: false };
-  }
+  if (VPA_RE.test(raw)) return { format: 'vpa', action: 'pay', raw: raw, parts: [], pa: raw, pn: '', mc: '', am: '', tr: '', signed: false };
   return { format: 'other', action: '', raw: raw, parts: [], pa: '', pn: '', mc: '', am: '', tr: '', signed: false };
 }
 
@@ -369,10 +646,10 @@ function normAmount(v) {
 
 function encVpa(s) { return encodeURIComponent(s).replace(/%40/g, '@'); }
 
-function buildQuery(qr, amount, mode) {
+function buildQuery(qr, amount, mode, name) {
   var amt = normAmount(amount);
   if (qr.format === 'upi' && mode === 'keep') {
-    var list = [], hasCu = false, keptAm = false;
+    var list = [], hasCu = false, keptAm = false, hasPn = false;
     qr.parts.forEach(function (p) {
       var k = p.k.toLowerCase();
       if (k === 'am' && amt) {
@@ -380,9 +657,11 @@ function buildQuery(qr, amount, mode) {
         keptAm = true;
       }
       if (k === 'cu') hasCu = true;
+      if (k === 'pn') hasPn = true;
       list.push(p);
     });
     var add = [];
+    if (!hasPn && name && !qr.signed) add.push('pn=' + encodeURIComponent(name));
     if (amt && !keptAm) add.push('am=' + amt);
     if (!hasCu) add.push('cu=INR');
     var signAt = -1;
@@ -391,379 +670,539 @@ function buildQuery(qr, amount, mode) {
     if (signAt >= 0) raws.splice.apply(raws, [signAt, 0].concat(add)); else raws = raws.concat(add);
     return raws.join('&');
   }
+  var pn = qr.pn || name || '';
   var out = ['pa=' + encVpa(qr.pa)];
-  if (qr.pn) out.push('pn=' + encodeURIComponent(qr.pn));
+  if (pn) out.push('pn=' + encodeURIComponent(pn));
   if (mode === 'keep' && qr.mc) out.push('mc=' + encodeURIComponent(qr.mc));
   if (amt) out.push('am=' + amt);
   out.push('cu=INR');
   return out.join('&');
 }
 
-function appLink(appId, form, query, android) {
-  var app = APPS[appId];
-  if (android) {
-    if (!app.pkg) return 'upi://pay?' + query;
-    return 'intent://pay?' + query + '#Intent;scheme=upi;package=' + app.pkg + ';end';
-  }
-  return app.forms[form] + '?' + query;
+function payLink(app, query, android) {
+  if (android) return app.pkg ? 'intent://pay?' + query + '#Intent;scheme=upi;package=' + app.pkg + ';end' : 'upi://pay?' + query;
+  return app.pay + '?' + query;
+}
+function openLink(app, android) {
+  if (android) return app.pkg ? 'intent://#Intent;package=' + app.pkg + ';end' : '';
+  return app.open;
 }
 
-function breakdown(amount) {
-  var n = parseFloat(normAmount(amount) || '0');
-  var rupees = Math.floor(n + 1e-9), out = [];
-  NOTES.forEach(function (d) {
-    var c = Math.floor(rupees / d[0]);
-    if (c > 0) { out.push({ value: d[0], count: c, color: d[1] }); rupees -= c * d[0]; }
-  });
-  return { notes: out, paise: Math.round((n - Math.floor(n + 1e-9)) * 100) };
+var ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+var TENS = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+function words99(n) { return n < 20 ? ONES[n] : TENS[Math.floor(n / 10)] + (n % 10 ? ' ' + ONES[n % 10] : ''); }
+function words999(n) { var h = Math.floor(n / 100), r = n % 100; return (h ? ONES[h] + ' Hundred' + (r ? ' ' : '') : '') + (r ? words99(r) : ''); }
+function amountWords(v) {
+  var a = normAmount(v); if (!a) return '';
+  var n = parseFloat(a), r = Math.floor(n), p = Math.round((n - r) * 100);
+  if (r > 9999999) return '';
+  var parts = [], cr = Math.floor(r / 10000000), lk = Math.floor(r / 100000) % 100, th = Math.floor(r / 1000) % 100, rest = r % 1000;
+  if (cr) parts.push(words99(cr) + ' Crore');
+  if (lk) parts.push(words99(lk) + ' Lakh');
+  if (th) parts.push(words99(th) + ' Thousand');
+  if (rest) parts.push(words999(rest));
+  var s = (parts.join(' ') || 'Zero') + (r === 1 ? ' Rupee' : ' Rupees');
+  if (p) s += ' and ' + words99(p) + ' Paise';
+  return s;
 }
-/* ---------- pure logic (end) ---------- */
+function fmtINR(v) {
+  var a = normAmount(v); if (!a) return '₹0';
+  var n = parseFloat(a);
+  return '₹' + n.toLocaleString('en-IN', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
+}
+function initials(name, id) {
+  var s = (name || '').trim();
+  if (s) { var w = s.split(/\s+/); return ((w[0][0] || '') + (w.length > 1 ? w[w.length - 1][0] : '')).toUpperCase(); }
+  return (id || '?').slice(0, 2).toUpperCase();
+}
 
+/* ================= app ================= */
 (function () {
-  if (typeof document === 'undefined') return;
   var $ = function (id) { return document.getElementById(id); };
+  var $$ = function (sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); };
   var ANDROID = /Android/i.test(navigator.userAgent);
-  var KEY = 'upi-handoff-test-v1';
-  var mem = {};
-  var store = {
-    get: function () {
-      try { var v = window.localStorage.getItem(KEY); if (v) return JSON.parse(v); } catch (e) {}
-      return mem.v || null;
-    },
-    set: function (v) {
-      mem.v = v;
-      try { window.localStorage.setItem(KEY, JSON.stringify(v)); } catch (e) {}
-    }
-  };
+  var KEY = 'upi-handoff-test-v2';
+  var mem = null;
+  function load() { try { var v = localStorage.getItem(KEY); if (v) return JSON.parse(v); } catch (e) {} return mem; }
+  function save() { mem = st; try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
 
-  var st = { raw: '', amount: '', mode: 'keep', kind: 'shop', pending: null, log: [] };
-  var saved = store.get();
+  var st = { raw: '', name: '', source: '', amount: '', mode: 'keep', tab: 'direct', view: 'payee', pending: null, log: [] };
+  var saved = load();
   if (saved) for (var k in st) if (saved[k] !== undefined) st[k] = saved[k];
   var qr = st.raw ? parseQr(st.raw) : null;
-  if (qr && (qr.format === 'other' || !qr.pa)) qr = null;
-  function save() { store.set(st); }
+  if (!qr || !qr.pa) { qr = null; st.view = 'payee'; }
+  if (st.view === 'pay' && !normAmount(st.amount)) st.view = 'amount';
 
-  function say(text) { var m = $('msg1'); m.textContent = text || ''; m.hidden = !text; }
+  function payeeName() { return (qr && qr.pn) || st.name || ''; }
+  function kind() { return guessKind(qr); }
+  function query() { return buildQuery(qr, st.amount, st.mode, st.name); }
 
-  /* ----- step 1: reading a QR ----- */
-  var stream = null, scanning = false, detector = null;
+  /* ---------- toast ---------- */
+  var toastT;
+  function toast(text) {
+    var t = $('toast'); t.textContent = text; t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(function () { t.hidden = true; }, 2200);
+  }
+
+  /* ---------- navigation ---------- */
+  var VIEWS = ['payee', 'amount', 'pay', 'results'];
+  var prevView = 'payee';
+  function go(view, push) {
+    if (view !== 'results') prevView = view;
+    st.view = view; save();
+    if (push !== false) try { history.pushState({ v: view }, ''); } catch (e) {}
+    render();
+    window.scrollTo(0, 0);
+    if (view === 'amount') setTimeout(function () { $('amount').focus(); }, 60);
+  }
+  window.addEventListener('popstate', function (e) {
+    var v = e.state && e.state.v;
+    if (!v) v = st.view === 'results' ? prevView : (st.view === 'pay' ? 'amount' : 'payee');
+    if ((v === 'amount' || v === 'pay') && !qr) v = 'payee';
+    go(v, false);
+  });
+  try { history.replaceState({ v: st.view }, ''); } catch (e) {}
+  $('back').addEventListener('click', function () {
+    if (st.view === 'results') go(qr ? prevView : 'payee');
+    else if (st.view === 'pay') go('amount');
+    else go('payee');
+  });
+  $('openResults').addEventListener('click', function () { if (st.view !== 'results') go('results'); });
+
+  /* ---------- step 1: payee ---------- */
+  function scanMsg(t) { $('scanMsg').textContent = t || ''; $('scanMsg').hidden = !t; }
+
+  function usePayee(text, typedName, source) {
+    var p = parseQr(text);
+    if (!p) return 'Enter a UPI ID or scan a QR.';
+    if (p.format === 'other') {
+      return /^https?:/i.test(p.raw) ? 'That QR is a web link, not a UPI code.' : 'That isn’t a UPI ID or UPI QR.';
+    }
+    if (!p.pa) return 'That QR has no UPI ID in it.';
+    if (p.format === 'vpa') {
+      p = parseQr('upi://pay?pa=' + encVpa(p.pa));
+      p.typed = true;
+    }
+    qr = p; st.raw = p.raw; st.source = source; st.name = typedName || '';
+    st.amount = p.am ? String(parseFloat(p.am) || '') : (st.amount || '1');
+    st.pending = null;
+    save();
+    go('amount');
+    return '';
+  }
+
+  $('idForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var err = usePayee($('vpa').value, $('pname').value.trim(), 'typed');
+    $('vpaErr').textContent = err; $('vpaErr').hidden = !err;
+    if (err) $('vpa').focus();
+  });
+  $('vpa').addEventListener('input', function () { $('vpaErr').hidden = true; });
+
+  // QR reading
+  var detector = null;
   function readerReady() {
     if (window.jsQR) return true;
-    if ('BarcodeDetector' in window) {
-      try { detector = detector || new window.BarcodeDetector({ formats: ['qr_code'] }); return true; } catch (e) {}
-    }
+    if ('BarcodeDetector' in window) { try { detector = detector || new window.BarcodeDetector({ formats: ['qr_code'] }); return true; } catch (e) {} }
     return false;
   }
-  function decodeCanvas(canvas, ctx, both) {
+  var work = document.createElement('canvas');
+  var wctx = work.getContext('2d', { willReadFrequently: true });
+  function decode(both) {
     if (window.jsQR) {
-      var d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      var d = wctx.getImageData(0, 0, work.width, work.height);
       var r = window.jsQR(d.data, d.width, d.height, { inversionAttempts: both ? 'attemptBoth' : 'dontInvert' });
       return Promise.resolve(r ? r.data : '');
     }
-    if (detector) {
-      return detector.detect(canvas).then(function (a) { return a.length ? a[0].rawValue : ''; }, function () { return ''; });
-    }
+    if (detector) return detector.detect(work).then(function (a) { return a.length ? a[0].rawValue : ''; }, function () { return ''; });
     return Promise.resolve('');
   }
+  function fromScan(text) {
+    var err = usePayee(text, '', 'scan');
+    if (err) scanMsg(err + (text ? ' It reads: ' + text.slice(0, 80) : ''));
+  }
 
-  var work = document.createElement('canvas');
-  var wctx = work.getContext('2d', { willReadFrequently: true });
-
-  function stopCamera() {
+  var stream = null, scanning = false;
+  function stopCam() {
     scanning = false;
     if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
-    stream = null;
-    $('finder').hidden = true;
+    stream = null; $('cam').hidden = true;
   }
-  function startCamera() {
-    say('');
-    if (!readerReady()) { say('The QR reader didn’t load. Check your connection and reload, or paste the QR text instead.'); return; }
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      say('The camera isn’t available here. Open this page in Safari or Chrome from an https address, or use a photo of the QR.');
-      return;
-    }
+  $('camBtn').addEventListener('click', function () {
+    scanMsg('');
+    if (!readerReady()) { scanMsg('The QR reader didn’t load. Check your connection and reload, or enter the UPI ID.'); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { scanMsg('The camera isn’t available here. Use a photo of the QR instead.'); return; }
     navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false }).then(function (s) {
-      stream = s;
-      var v = $('video');
-      v.srcObject = s;
-      $('finder').hidden = false;
-      v.play().catch(function () {});
-      scanning = true;
+      stream = s; var v = $('video'); v.srcObject = s; $('cam').hidden = false; v.play().catch(function () {});
+      scanning = true; $('camClose').focus();
       var last = 0, busy = false;
       (function tick(now) {
         if (!scanning) return;
         if (!busy && v.readyState >= 2 && now - last > 140 && v.videoWidth) {
           last = now; busy = true;
-          var scale = Math.min(1, 720 / v.videoWidth);
-          work.width = Math.round(v.videoWidth * scale);
-          work.height = Math.round(v.videoHeight * scale);
+          var sc = Math.min(1, 720 / v.videoWidth);
+          work.width = Math.round(v.videoWidth * sc); work.height = Math.round(v.videoHeight * sc);
           wctx.drawImage(v, 0, 0, work.width, work.height);
-          decodeCanvas(work, wctx, false).then(function (text) {
+          decode(false).then(function (t) {
             busy = false;
-            if (text && scanning) { stopCamera(); useText(text); }
+            if (t && scanning) { if (navigator.vibrate) navigator.vibrate(30); stopCam(); fromScan(t); }
           });
         }
         requestAnimationFrame(tick);
       })(0);
-    }).catch(function () {
-      say('The camera is blocked. Allow camera access for this page, or use a photo of the QR instead.');
-    });
-  }
+    }).catch(function () { scanMsg('Camera access was blocked. Allow it in Safari’s settings for this site, or use a photo.'); });
+  });
+  $('camClose').addEventListener('click', stopCam);
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!$('cam').hidden) stopCam();
+    else if (!$('sheetWrap').hidden) closeSheet();
+  });
 
-  function readPhoto(file) {
-    say('');
+  $('photo').addEventListener('change', function (e) {
+    var file = e.target.files[0]; e.target.value = ''; scanMsg('');
     if (!file) return;
-    if (!readerReady()) { say('The QR reader didn’t load. Check your connection and reload, or paste the QR text instead.'); return; }
-    var url = URL.createObjectURL(file);
-    var img = new Image();
+    if (!readerReady()) { scanMsg('The QR reader didn’t load. Check your connection and reload, or enter the UPI ID.'); return; }
+    var url = URL.createObjectURL(file), img = new Image();
     img.onload = function () {
       var sizes = [1400, 900, 500], i = 0;
       (function attempt() {
-        if (i >= sizes.length) {
-          URL.revokeObjectURL(url);
-          say('No QR found in that photo. Fill the frame with the QR, avoid glare, and try again.');
-          return;
-        }
-        var scale = Math.min(1, sizes[i] / Math.max(img.width, img.height));
-        work.width = Math.max(1, Math.round(img.width * scale));
-        work.height = Math.max(1, Math.round(img.height * scale));
-        wctx.drawImage(img, 0, 0, work.width, work.height);
-        i++;
-        decodeCanvas(work, wctx, true).then(function (text) {
-          if (text) { URL.revokeObjectURL(url); useText(text); } else attempt();
-        });
+        if (i >= sizes.length) { URL.revokeObjectURL(url); scanMsg('No QR found in that photo. Crop close to the QR and try again.'); return; }
+        var sc = Math.min(1, sizes[i] / Math.max(img.width, img.height));
+        work.width = Math.max(1, Math.round(img.width * sc)); work.height = Math.max(1, Math.round(img.height * sc));
+        wctx.drawImage(img, 0, 0, work.width, work.height); i++;
+        decode(true).then(function (t) { if (t) { URL.revokeObjectURL(url); fromScan(t); } else attempt(); });
       })();
     };
-    img.onerror = function () { URL.revokeObjectURL(url); say('That file couldn’t be opened as a picture.'); };
+    img.onerror = function () { URL.revokeObjectURL(url); scanMsg('That file couldn’t be opened as a picture.'); };
     img.src = url;
-  }
+  });
 
-  function useText(text) {
-    var p = parseQr(text);
-    if (!p) { say('Nothing to read. Scan a QR or paste its text.'); return; }
-    if (p.format === 'other') {
-      qr = null; st.raw = ''; save(); render();
-      say(/^https?:/i.test(p.raw)
-        ? 'This QR is a web link, not a UPI code, so it can’t be passed to a payment app: ' + p.raw.slice(0, 120)
-        : 'This isn’t a UPI QR. It reads: ' + p.raw.slice(0, 120));
-      return;
-    }
-    if (!p.pa) {
-      qr = null; st.raw = ''; save(); render();
-      say('This QR has no UPI ID in it, so there’s no one to pay.');
-      return;
-    }
-    qr = p;
-    st.raw = p.raw;
-    st.kind = guessKind(p);
-    st.amount = p.am ? String(parseFloat(p.am) || '') : st.amount;
-    save();
-    say(p.action !== 'pay' ? 'This is a UPI “' + p.action + '” code, not a normal payment QR. Results may not mean much.' : '');
-    render();
-    $('s2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  /* ---------- step 2: amount ---------- */
+  function sizeAmount() {
+    var i = $('amount'), len = Math.max(1, (i.value || i.placeholder).length);
+    i.style.width = (len * 0.62 + 0.3) + 'em';
   }
+  $('amount').addEventListener('input', function (e) {
+    var v = e.target.value.replace(/[^\d.]/g, '');
+    var dot = v.indexOf('.');
+    if (dot >= 0) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/\./g, '').slice(0, 2);
+    if (v.length > 9) v = v.slice(0, 9);
+    if (v !== e.target.value) e.target.value = v;
+    st.amount = v; save(); renderAmount();
+  });
+  $('amount').addEventListener('keydown', function (e) { if (e.key === 'Enter') footAction(); });
+  $$('[data-amt]').forEach(function (b) {
+    b.addEventListener('click', function () { st.amount = b.getAttribute('data-amt'); save(); renderAmount(); });
+  });
 
-  /* ----- rendering ----- */
-  function setPressed(attr, value) {
-    document.querySelectorAll('[' + attr + ']').forEach(function (b) {
-      b.setAttribute('aria-pressed', b.getAttribute(attr) === value ? 'true' : 'false');
-    });
+  /* ---------- footer ---------- */
+  function footAction() {
+    if (st.view === 'amount' && normAmount(st.amount)) go('pay');
   }
+  $('footBtn').addEventListener('click', footAction);
+  $$('[data-change]').forEach(function (b) { b.addEventListener('click', function () { go('payee'); }); });
+  $('editAmt').addEventListener('click', function () { go('amount'); });
 
-  function renderPayee() {
-    $('payee').hidden = !qr;
-    if (!qr) return;
-    $('pName').textContent = qr.pn || 'No name in the QR';
-    $('pId').textContent = qr.pa;
-    var facts = [];
-    facts.push(guessKind(qr) === 'shop' ? 'Looks like a shop (merchant) QR' : 'Looks like a personal QR');
-    if (qr.format === 'emv') facts.push('Bharat QR format: only the UPI ID, name and shop code can be passed on');
-    if (qr.format === 'vpa') facts.push('Typed UPI ID, no QR details');
-    facts.push(qr.signed ? 'Signed: changing it may be rejected' : 'Not signed');
-    facts.push(qr.am ? 'Fixed amount in the QR: ₹' + qr.am : 'No amount in the QR');
-    if (qr.mc) facts.push('Shop category code: ' + qr.mc);
-    var ul = $('pFacts'); ul.textContent = '';
-    facts.forEach(function (f) { var li = document.createElement('li'); li.textContent = f; ul.appendChild(li); });
-    $('pRaw').textContent = qr.raw;
-    setPressed('data-kind', st.kind);
-  }
-
-  function renderNotes() {
-    var box = $('notes'); box.textContent = '';
-    var b = breakdown(st.amount);
-    b.notes.forEach(function (n) {
-      var chip = document.createElement('span');
-      chip.className = 'note-chip' + (n.value < 10 ? ' coin' : '');
-      chip.style.background = n.color;
-      chip.textContent = '₹' + n.value + (n.count > 1 ? ' ×' + n.count : '');
-      box.appendChild(chip);
-    });
-    if (b.paise) {
-      var p = document.createElement('span');
-      p.className = 'note-chip coin'; p.style.background = '#D8D8DE';
-      p.textContent = b.paise + 'p';
-      box.appendChild(p);
-    }
-    var hint = $('amountHint'), text = '';
-    if (qr && qr.am && normAmount(st.amount) !== normAmount(qr.am)) text = 'The QR asked for ₹' + qr.am + '. You’re sending a different amount.';
-    else if (qr && qr.am) text = 'This amount came from the QR.';
-    hint.textContent = text; hint.hidden = !text;
-  }
-
-  function appRow(appId, form, label) {
-    var ready = !!qr && !!normAmount(st.amount);
-    var row = document.createElement('div'); row.className = 'app-row';
-    var a = document.createElement('a'); a.className = 'app-open';
-    a.textContent = 'Open ' + label;
-    var link = ready ? appLink(appId, form, buildQuery(qr, st.amount, st.mode), ANDROID) : '';
-    if (ready) a.href = link; else a.setAttribute('aria-disabled', 'true');
-    a.addEventListener('click', function () { if (ready) began(appId, form, label, link); });
-    var c = document.createElement('button'); c.type = 'button'; c.className = 'copy'; c.textContent = 'Copy link';
-    c.disabled = !ready;
-    c.addEventListener('click', function () {
-      copy(link).then(function (ok) {
-        c.textContent = ok ? 'Copied' : 'Copy failed';
-        setTimeout(function () { c.textContent = 'Copy link'; }, 1600);
-      });
-    });
-    row.appendChild(a); row.appendChild(c);
-    return row;
-  }
-
-  function renderApps() {
-    var main = $('apps'), alt = $('appsAlt');
-    main.textContent = ''; alt.textContent = '';
-    main.appendChild(appRow('gpay', 0, 'Google Pay'));
-    main.appendChild(appRow('phonepe', 0, 'PhonePe'));
-    main.appendChild(appRow('paytm', 0, 'Paytm'));
-    if (!ANDROID) {
-      alt.appendChild(appRow('gpay', 1, 'Google Pay (gpay://)'));
-      alt.appendChild(appRow('paytm', 1, 'Paytm (short link)'));
-    }
-    alt.appendChild(appRow('any', 0, 'any UPI app (upi://)'));
-    $('altHint').textContent = ANDROID
-      ? 'The upi:// link lets Android show its own list of payment apps.'
-      : 'On iPhone the plain upi:// link opens whichever app claimed it, often not the one you want.';
-  }
-
-  function renderLog() {
-    var ul = $('log'); ul.textContent = '';
-    var has = st.log.length > 0;
-    $('empty').hidden = has; $('logActions').hidden = !has;
-    var tally = { shop: [0, 0], personal: [0, 0] };
-    st.log.forEach(function (e) {
-      tally[e.kind][1]++; if (e.outcome === 'Paid') tally[e.kind][0]++;
-      var li = document.createElement('li');
-      var o = document.createElement('div'); o.className = 'outcome ' + (e.outcome === 'Paid' ? 'ok' : 'no'); o.textContent = e.outcome;
-      var d = document.createElement('div');
-      d.textContent = (e.kind === 'shop' ? 'Shop QR' : 'Personal QR') + ', ' + e.app + ', ₹' + e.amount + ', ' + (e.mode === 'keep' ? 'QR as scanned' : 'only ID, name, amount');
-      var m = document.createElement('div'); m.className = 'meta';
-      m.textContent = e.pa + (e.signed ? ', signed' : '') + ', ' + e.time + (e.note ? ': “' + e.note + '”' : '');
-      li.appendChild(o); li.appendChild(d); li.appendChild(m);
-      ul.appendChild(li);
-    });
-    var bits = [];
-    if (tally.shop[1]) bits.push('Shop QRs: ' + tally.shop[0] + ' of ' + tally.shop[1] + ' paid');
-    if (tally.personal[1]) bits.push('Personal QRs: ' + tally.personal[0] + ' of ' + tally.personal[1] + ' paid');
-    $('summary').textContent = bits.join('. ') + (bits.length ? '.' : '');
-    $('summary').hidden = !bits.length;
-  }
-
-  function renderResult() {
-    var p = st.pending;
-    $('result').hidden = !p;
-    if (p) $('resultLead').textContent = 'You opened ' + p.app + ' for ₹' + p.amount + ' to ' + p.pa + '.' + (p.stayed ? ' The page never left the screen, so the app may not have opened.' : '');
-  }
-
-  function render() {
-    $('s2').setAttribute('data-locked', qr ? 'false' : 'true');
-    $('s3').setAttribute('data-locked', qr ? 'false' : 'true');
-    if ($('amount').value !== st.amount) $('amount').value = st.amount;
-    setPressed('data-mode', st.mode);
-    renderPayee(); renderNotes(); renderApps(); renderLog(); renderResult();
-  }
-
-  /* ----- step 3: the handoff ----- */
-  var wasHidden = false;
-  function began(appId, form, label, link) {
-    wasHidden = false;
-    st.pending = {
-      app: label, link: link, amount: normAmount(st.amount), pa: qr.pa, kind: st.kind,
-      mode: st.mode, signed: qr.signed, stayed: false,
-      time: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
-    };
-    save();
-    setTimeout(function () {
-      if (st.pending && !wasHidden && document.visibilityState === 'visible') {
-        st.pending.stayed = true; save(); renderResult(); focusResult();
+  /* ---------- step 3: tabs ---------- */
+  $$('[data-tab]').forEach(function (b) {
+    b.addEventListener('click', function () { st.tab = b.getAttribute('data-tab'); save(); renderPay(); });
+    b.addEventListener('keydown', function (e) {
+      var order = ['direct', 'copy', 'qr'], i = order.indexOf(st.tab);
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        st.tab = order[(i + (e.key === 'ArrowRight' ? 1 : 2)) % 3]; save(); renderPay();
+        $('tab-' + st.tab).focus();
       }
-    }, 3000);
-  }
-  function focusResult() { $('result').scrollIntoView({ behavior: 'smooth', block: 'center' }); }
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') { wasHidden = true; return; }
-    if (st.pending) { renderResult(); focusResult(); }
+    });
+  });
+  $$('[data-mode]').forEach(function (b) {
+    b.addEventListener('click', function () { st.mode = b.getAttribute('data-mode'); save(); renderPay(); });
   });
 
-  $('result').addEventListener('click', function (ev) {
-    var b = ev.target.closest('button[data-outcome]');
-    if (!b || !st.pending) return;
-    var outcome = b.getAttribute('data-outcome');
-    if (outcome) {
-      var e = st.pending;
-      st.log.unshift({ outcome: outcome, note: $('resultNote').value.trim(), app: e.app, amount: e.amount, pa: e.pa, kind: e.kind, mode: e.mode, signed: e.signed, time: e.time, link: e.link });
+  function lastOutcome(method, appId) {
+    for (var i = 0; i < st.log.length; i++) {
+      var e = st.log[i];
+      if (e.method === method && e.appId === appId && e.pa === qr.pa) return e.outcome;
     }
-    st.pending = null; $('resultNote').value = '';
-    save(); render();
-    if (outcome) $('logSec').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return '';
+  }
+
+  function appRow(app, method) {
+    var a = document.createElement('a');
+    a.className = 'app';
+    var href = method === 'direct' ? payLink(app, query(), ANDROID) : openLink(app, ANDROID);
+    a.href = href;
+    var last = lastOutcome(method, app.id);
+    var sub = method === 'direct'
+      ? (app.known ? (app.id === 'any' ? 'Whichever app your phone picks' : 'Opens with ID and amount filled in') : 'Untested link, may not open')
+      : (app.known ? 'Copies the UPI ID, then opens the app' : 'Untested link, may not open');
+    a.innerHTML = '<span class="mono"></span><span class="app-text"><b></b><small></small></span>' +
+      (last ? '<span class="last"></span>' : '') +
+      '<svg class="go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+    a.querySelector('.mono').textContent = app.mono;
+    a.querySelector('b').textContent = (method === 'copy' ? 'Copy ID & open ' : '') + app.name;
+    a.querySelector('small').textContent = sub;
+    if (last) { var l = a.querySelector('.last'); l.textContent = last === 'Paid' ? 'Paid' : 'Failed'; l.className = 'last ' + (last === 'Paid' ? 'ok' : 'no'); }
+    a.addEventListener('click', function () {
+      if (method === 'copy') copySync(qr.pa);
+      began(method, app);
+    });
+    return a;
+  }
+
+  /* ---------- QR ---------- */
+  var qrBlob = null, qrKey = '';
+  function qrText() { return 'upi://pay?' + query(); }
+  function renderQr() {
+    var text = qrText();
+    var key = text + '|' + payeeName();
+    if (key === qrKey) return;
+    if (!window.qrcode) { $('qrMsg').textContent = 'The QR maker didn’t load. Check your connection and reload.'; $('qrMsg').hidden = false; return; }
+    $('qrMsg').hidden = true;
+    qrKey = key;
+    try {
+      if (qrcode.stringToBytesFuncs && qrcode.stringToBytesFuncs['UTF-8']) qrcode.stringToBytes = qrcode.stringToBytesFuncs['UTF-8'];
+      var q = qrcode(0, 'M'); q.addData(text); q.make();
+      var n = q.getModuleCount();
+      var W = 1080, H = 1360, c = document.createElement('canvas'); c.width = W; c.height = H;
+      var x = c.getContext('2d');
+      x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H);
+      var cell = Math.floor(840 / (n + 8)), size = cell * (n + 8), ox = Math.round((W - size) / 2), oy = 90;
+      x.fillStyle = '#0E1A15';
+      for (var r = 0; r < n; r++) for (var col = 0; col < n; col++) if (q.isDark(r, col)) x.fillRect(ox + (col + 4) * cell, oy + (r + 4) * cell, cell, cell);
+      var y = oy + size + 70;
+      x.textAlign = 'center';
+      x.fillStyle = '#0E1A15';
+      x.font = '700 92px -apple-system, system-ui, sans-serif';
+      x.fillText(fmtINR(st.amount), W / 2, y);
+      x.font = '600 50px -apple-system, system-ui, sans-serif';
+      x.fillText(fit(x, payeeName() || qr.pa, 920), W / 2, y + 80);
+      x.fillStyle = '#5A6B63';
+      x.font = '400 38px -apple-system, system-ui, sans-serif';
+      if (payeeName()) x.fillText(fit(x, qr.pa, 920), W / 2, y + 136);
+      x.font = '600 32px -apple-system, system-ui, sans-serif';
+      x.fillStyle = '#0A7556';
+      x.fillText('Scan in any UPI app', W / 2, H - 50);
+      $('qrImg').src = c.toDataURL('image/png');
+      qrBlob = null;
+      if (c.toBlob) c.toBlob(function (b) { qrBlob = b; }, 'image/png');
+    } catch (e) {
+      $('qrMsg').textContent = 'Couldn’t make a QR for this payment.'; $('qrMsg').hidden = false;
+    }
+  }
+  function fit(ctx, s, w) { s = String(s); if (ctx.measureText(s).width <= w) return s; while (s.length > 1 && ctx.measureText(s + '…').width > w) s = s.slice(0, -1); return s + '…'; }
+
+  $('qrSave').addEventListener('click', function () {
+    began('qr', { id: 'qr', name: 'QR from Photos' }, true);
+    if (qrBlob && navigator.canShare) {
+      var file = new File([qrBlob], 'upi-qr.png', { type: 'image/png' });
+      if (navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file] }).catch(function () {});
+        return;
+      }
+    }
+    var a = document.createElement('a'); a.href = $('qrImg').src; a.download = 'upi-qr.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    toast('If it didn’t save, press and hold the QR, then Save to Photos');
+  });
+  $('qrDone').addEventListener('click', function () {
+    if (!st.pending || st.pending.method !== 'qr') began('qr', { id: 'qr', name: 'QR from Photos' }, true);
+    openSheet();
   });
 
-  function copy(text) {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      return navigator.clipboard.writeText(text).then(function () { return true; }, function () { return legacyCopy(text); });
-    }
-    return Promise.resolve(legacyCopy(text));
-  }
-  function legacyCopy(text) {
+  /* ---------- copy ---------- */
+  function copySync(text) {
+    var ok = false;
     try {
       var t = document.createElement('textarea');
-      t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      t.value = text; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.top = '0'; t.style.opacity = '0';
       document.body.appendChild(t); t.select(); t.setSelectionRange(0, text.length);
-      var ok = document.execCommand('copy'); document.body.removeChild(t); return ok;
-    } catch (e) { return false; }
+      ok = document.execCommand('copy'); document.body.removeChild(t);
+    } catch (e) {}
+    if (!ok && navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).catch(function () {}); ok = true; }
+    return ok;
   }
+  function copyBtn(btn, getText, label) {
+    btn.addEventListener('click', function () {
+      var ok = copySync(getText());
+      btn.textContent = ok ? 'Copied' : 'Failed'; btn.classList.toggle('done', ok);
+      toast(ok ? label + ' copied' : 'Couldn’t copy. Press and hold to select it.');
+      setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('done'); }, 1800);
+    });
+  }
+  copyBtn($('copyIdBtn'), function () { return qr.pa; }, 'UPI ID');
+  copyBtn($('copyAmtBtn'), function () { return String(parseFloat(normAmount(st.amount))); }, 'Amount');
 
-  /* ----- wiring ----- */
-  $('camBtn').addEventListener('click', startCamera);
-  $('camStop').addEventListener('click', stopCamera);
-  $('photo').addEventListener('change', function (e) { readPhoto(e.target.files[0]); e.target.value = ''; });
-  $('pasteUse').addEventListener('click', function () { say(''); useText($('paste').value); });
-  $('amount').addEventListener('input', function (e) {
-    st.amount = e.target.value.replace(/[^\d.]/g, '');
-    if (st.amount !== e.target.value) e.target.value = st.amount;
-    save(); renderNotes(); renderApps();
+  /* ---------- pending + outcome ---------- */
+  var wasHidden = false, stayT;
+  function began(method, app, noAuto) {
+    wasHidden = false;
+    st.pending = {
+      method: method, appId: app.id, app: app.name, amount: normAmount(st.amount), pa: qr.pa, name: payeeName(),
+      kind: kind(), mode: method === 'copy' ? 'typed in app' : (st.mode === 'keep' ? 'as scanned' : 'ID, name, amount'),
+      link: method === 'direct' ? payLink(app, query(), ANDROID) : (method === 'qr' ? qrText() : ''),
+      stayed: false, time: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+    };
+    save();
+    clearTimeout(stayT);
+    if (method === 'copy') toast('UPI ID copied. Opening ' + app.name + '…');
+    if (!noAuto) stayT = setTimeout(function () {
+      if (st.pending && !wasHidden && document.visibilityState === 'visible') { st.pending.stayed = true; save(); openSheet(); }
+    }, 3500);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') { wasHidden = true; return; }
+    if (st.pending && wasHidden) setTimeout(openSheet, 250);
   });
-  document.querySelectorAll('[data-mode]').forEach(function (b) {
-    b.addEventListener('click', function () { st.mode = b.getAttribute('data-mode'); save(); render(); });
+
+  var lastFocus = null;
+  function openSheet() {
+    var p = st.pending; if (!p || !$('sheetWrap').hidden) return;
+    lastFocus = document.activeElement;
+    var via = METHOD_LABEL[p.method] + (p.method === 'qr' ? '' : ', ' + p.app);
+    $('sheetLead').textContent = fmtINR(p.amount) + ' to ' + (p.name || p.pa) + ' · ' + via + '.' +
+      (p.stayed ? ' This page never left the screen, so the app may not have opened.' : '');
+    $('sheetNote').value = '';
+    $('sheetWrap').hidden = false;
+    setTimeout(function () { $$('.outcome')[0].focus(); }, 50);
+  }
+  function closeSheet() {
+    $('sheetWrap').hidden = true;
+    if (lastFocus && lastFocus.focus) try { lastFocus.focus(); } catch (e) {}
+  }
+  $('sheetBackdrop').addEventListener('click', closeSheet);
+  $$('.outcome').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var o = b.getAttribute('data-outcome'), p = st.pending;
+      if (o && p) {
+        p.outcome = o; p.note = $('sheetNote').value.trim();
+        delete p.stayed;
+        st.log.unshift(p);
+        toast(o === 'Paid' ? 'Recorded: paid' : 'Recorded');
+      }
+      st.pending = null; save(); closeSheet(); render();
+    });
   });
-  document.querySelectorAll('[data-kind]').forEach(function (b) {
-    b.addEventListener('click', function () { st.kind = b.getAttribute('data-kind'); save(); render(); });
-  });
-  $('copyLog').addEventListener('click', function () {
-    var rows = ['Outcome\tQR type\tApp\tAmount\tSent\tUPI ID\tSigned\tTime\tNote\tLink'];
+
+  /* ---------- results ---------- */
+  function rowsTsv() {
+    var rows = ['Outcome\tMethod\tApp\tAmount\tPayee\tUPI ID\tQR type\tSent\tTime\tNote\tLink'];
     st.log.forEach(function (e) {
-      rows.push([e.outcome, e.kind, e.app, e.amount, e.mode === 'keep' ? 'QR as scanned' : 'ID, name, amount', e.pa, e.signed ? 'yes' : 'no', e.time, e.note || '', e.link].join('\t'));
+      rows.push([e.outcome, METHOD_LABEL[e.method], e.app, e.amount, e.name || '', e.pa, e.kind, e.mode, e.time, e.note || '', e.link || ''].join('\t'));
     });
-    copy(rows.join('\n')).then(function (ok) {
-      $('copyLog').textContent = ok ? 'Copied' : 'Copy failed';
-      setTimeout(function () { $('copyLog').textContent = 'Copy results'; }, 1600);
-    });
-  });
+    return rows.join('\n');
+  }
+  $('copyLog').addEventListener('click', function () { toast(copySync(rowsTsv()) ? 'Results copied' : 'Couldn’t copy'); });
   $('clearLog').addEventListener('click', function () {
     if (window.confirm('Clear all recorded results?')) { st.log = []; save(); render(); }
   });
 
+  /* ---------- render ---------- */
+  function renderPayeeBits() {
+    if (!qr) return;
+    var nm = payeeName(), k = kind();
+    $$('[data-avatar]').forEach(function (e) { e.textContent = initials(nm, qr.pa); });
+    $$('[data-name]').forEach(function (e) { e.textContent = nm || qr.pa; });
+    $$('[data-id]').forEach(function (e) { e.textContent = nm ? qr.pa : (qr.typed ? 'Typed UPI ID' : 'No name in the QR'); });
+    $$('[data-kind]').forEach(function (e) {
+      e.textContent = k === 'shop' ? 'Merchant' + (qr.signed ? ' · signed' : '') : 'Personal';
+      e.className = 'badge' + (k === 'shop' ? ' merchant' : '');
+    });
+  }
+
+  function renderAmount() {
+    var i = $('amount');
+    if (i.value !== st.amount) i.value = st.amount;
+    sizeAmount();
+    $('amountWords').textContent = amountWords(st.amount);
+    $$('[data-amt]').forEach(function (b) { b.setAttribute('aria-pressed', normAmount(b.getAttribute('data-amt')) === normAmount(st.amount) ? 'true' : 'false'); });
+    var h = '', a = normAmount(st.amount);
+    if (qr && qr.am && a !== normAmount(qr.am)) h = 'The QR asked for ' + fmtINR(qr.am) + '. You’re sending a different amount.';
+    else if (qr && qr.am) h = 'This amount came from the QR.';
+    else if (a && parseFloat(a) > 1) h = 'Testing? ₹1 is enough to see whether the app accepts it.';
+    $('amountHint').textContent = h; $('amountHint').hidden = !h;
+    $('footBtn').disabled = !a;
+    $('footBtn').textContent = a ? 'Continue with ' + fmtINR(a) : 'Enter an amount';
+  }
+
+  function renderPay() {
+    $('payAmt').textContent = fmtINR(st.amount);
+    $$('[data-tab]').forEach(function (b) {
+      var on = b.getAttribute('data-tab') === st.tab;
+      b.setAttribute('aria-selected', on ? 'true' : 'false'); b.tabIndex = on ? 0 : -1;
+    });
+    $('p-direct').hidden = st.tab !== 'direct';
+    $('p-copy').hidden = st.tab !== 'copy';
+    $('p-qr').hidden = st.tab !== 'qr';
+
+    var personal = kind() === 'personal';
+    $('directTag').textContent = personal ? 'Often refused' : 'Best for shops';
+    $('directTag').className = 'tag ' + (personal ? 'risk' : 'ok');
+    $('directNote').textContent = personal
+      ? 'Google Pay and PhonePe usually refuse this for personal UPI IDs. Other apps may differ, so test each one.'
+      : 'Merchant QRs are the case apps are built to accept from a link.';
+    var showMode = qr.format === 'upi' && (qr.parts.length > 2 || qr.mc);
+    $('modeBox').hidden = !(showMode || qr.format === 'emv');
+    $$('[data-mode]').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-mode') === st.mode ? 'true' : 'false'); });
+
+    var d = $('directApps'); d.textContent = '';
+    APPS.forEach(function (app) { d.appendChild(appRow(app, 'direct')); });
+
+    $('copyId').textContent = qr.pa;
+    $('copyAmt').textContent = fmtINR(st.amount);
+    $('stepAmt').textContent = fmtINR(st.amount);
+    var c = $('copyApps'); c.textContent = '';
+    APPS.forEach(function (app) { if (openLink(app, ANDROID)) c.appendChild(appRow(app, 'copy')); });
+
+    if (st.tab === 'qr') renderQr();
+  }
+
+  function renderResults() {
+    var ul = $('log'); ul.textContent = '';
+    $('empty').hidden = st.log.length > 0;
+    $('logActions').hidden = !st.log.length;
+    var tally = { direct: [0, 0], copy: [0, 0], qr: [0, 0] };
+    st.log.forEach(function (e) {
+      if (tally[e.method]) { tally[e.method][1]++; if (e.outcome === 'Paid') tally[e.method][0]++; }
+      var li = document.createElement('li');
+      li.innerHTML = '<span class="dot"></span><span class="t"><b></b><small></small><small></small></span><span class="a num"></span>';
+      li.querySelector('.dot').className = 'dot' + (e.outcome === 'Paid' ? ' ok' : '');
+      li.querySelector('b').textContent = e.outcome + ' · ' + METHOD_LABEL[e.method] + (e.method === 'qr' ? '' : ', ' + e.app);
+      var sm = li.querySelectorAll('small');
+      sm[0].textContent = (e.name ? e.name + ' · ' : '') + e.pa + ' · ' + (e.kind === 'shop' ? 'Merchant' : 'Personal');
+      sm[1].textContent = e.time + (e.note ? ' · “' + e.note + '”' : '');
+      li.querySelector('.a').textContent = fmtINR(e.amount);
+      ul.appendChild(li);
+    });
+    var s = $('stats'); s.textContent = '';
+    ['direct', 'copy', 'qr'].forEach(function (m) {
+      var d = document.createElement('div'); d.className = 'stat';
+      d.innerHTML = '<b class="num"></b><span></span>';
+      d.querySelector('b').textContent = tally[m][1] ? tally[m][0] + '/' + tally[m][1] : '–';
+      d.querySelector('span').textContent = METHOD_LABEL[m] + ' paid';
+      s.appendChild(d);
+    });
+  }
+
+  function render() {
+    VIEWS.forEach(function (v) { $('v-' + v).hidden = st.view !== v; });
+    $('back').hidden = st.view === 'payee';
+    $('barTitle').textContent = { payee: 'UPI handoff test', amount: 'Amount', pay: 'Pay', results: 'Results' }[st.view];
+    $('count').textContent = st.log.length;
+    $('openResults').hidden = st.view === 'results';
+    $('footer').hidden = st.view !== 'amount';
+    if (qr) renderPayeeBits();
+    if (st.view === 'amount') renderAmount();
+    if (st.view === 'pay') renderPay();
+    if (st.view === 'results') renderResults();
+  }
+
   render();
+  if (st.pending && document.visibilityState === 'visible') setTimeout(openSheet, 300);
+  // libraries load asynchronously; redraw the QR once its maker arrives
+  var waitQr = setInterval(function () { if (window.qrcode) { clearInterval(waitQr); if (st.view === 'pay' && st.tab === 'qr') { qrKey = ''; renderQr(); } } }, 300);
+  setTimeout(function () { clearInterval(waitQr); }, 15000);
 })();
 </script>
 </body>
