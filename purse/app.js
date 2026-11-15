@@ -235,13 +235,13 @@
       var all = breakdown(amount), notes = all.filter(function (v) { return v >= 10; }).slice(0, 6), coins = all.filter(function (v) { return v < 10; }).slice(0, 4);
       var want = {}, seen = {};
       function key(kind, v) { var b = kind + v; seen[b] = (seen[b] || 0) + 1; return b + '#' + seen[b]; }
-      var m = notes.length;
+      var m = notes.length, NW = m <= 2 ? 232 : m <= 4 ? 214 : 196, xL = 12, xR = 328 - NW;
       notes.forEach(function (v, i) {
         var c = i - (m - 1) / 2;
-        want[key('n', v)] = { kind: 'n', v: v, x: (m === 1 ? 85 : i * (170 / (m - 1))), y: -86 + Math.abs(c) * 7, r: m > 1 ? c * (24 / (m - 1)) : -3, z: 30 + i };
+        want[key('n', v)] = { kind: 'n', v: v, w: NW, x: (m === 1 ? (340 - NW) / 2 : xL + i * ((xR - xL) / (m - 1))), y: -96 + Math.abs(c) * 7, r: m > 1 ? c * (22 / (m - 1)) : -3, z: 30 + i };
       });
       coins.forEach(function (v, j) {
-        want[key('c', v)] = { kind: 'c', v: v, x: 238 + j * 22, y: -6 + (j % 2) * 16 - (m ? 0 : 60), r: j * 14 - 8, z: 50 + j };
+        want[key('c', v)] = { kind: 'c', v: v, x: 228 + j * 30, y: 2 + (j % 2) * 14 - (m ? 0 : 70), r: j * 14 - 8, z: 50 + j };
       });
       Object.keys(outMap).forEach(function (k) {
         if (want[k]) return;
@@ -253,11 +253,12 @@
       Object.keys(want).forEach(function (k) {
         var p = want[k], el = outMap[k];
         if (!el) {
-          el = p.kind === 'n' ? noteEl(p.v, 170) : coinEl(p.v, p.v === 10 ? 42 : 36);
+          el = p.kind === 'n' ? noteEl(p.v, p.w) : coinEl(p.v, p.v === 10 ? 50 : p.v === 1 ? 40 : 44);
           el.style.setProperty('--sx', p.kind === 'n' ? '80px' : '230px');
           if (animate) { el.classList.add('enter'); el.style.setProperty('--d', (order++ * 70) + 'ms'); }
           out.appendChild(el); outMap[k] = el;
         }
+        if (p.w) el.style.setProperty('--w', p.w + 'px');
         el.style.setProperty('--x', p.x + 'px'); el.style.setProperty('--y', p.y + 'px'); el.style.setProperty('--r', p.r + 'deg'); el.style.zIndex = p.z;
       });
     }
@@ -313,7 +314,7 @@
   $$('[data-go]').forEach(function (b) { b.addEventListener('click', function () { var t = b.getAttribute('data-go'); if (t === 'home' && history.state && history.state.s !== 'home') history.back(); else go(t); }); });
   function fitAll() {
     if (screen === 'home') fit($('homeStage'), $('walletBtn'), 340, 300);
-    if (screen === 'pay') fit($('payStage'), $('payWallet'), 340, 250);
+    if (screen === 'pay') fit($('payStage'), $('payWallet'), 340, 262);
     if (!$('count').hidden) fit($('countStage'), $('countWallet'), 340, 300);
   }
   window.addEventListener('resize', fitAll);

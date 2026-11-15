@@ -146,6 +146,7 @@ h2 { font: 400 30px/1.05 var(--serif); margin: 0 0 4px; }
 .w3-flap::before { content: ""; position: absolute; inset: 6px; border: 1px dashed rgba(236,205,150,.35); border-radius: 7px 7px 13px 13px; }
 .w3-flap i { position: absolute; left: 50%; top: 18px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #F6E2B8, #B88B4A 60%, #7A5A2C); box-shadow: 0 2px 3px rgba(0,0,0,.6); }
 .w3-out { position: absolute; inset: 0; z-index: 30; pointer-events: none; }
+.w3-out .note { transition-property: transform, opacity, width, height; }
 .w3-out .note, .w3-out .coin { transform: translate(var(--x), var(--y)) rotate(var(--r)); box-shadow: 0 18px 30px rgba(0,0,0,.55), 0 4px 8px rgba(0,0,0,.35);
   transition: transform .45s cubic-bezier(.2,.8,.2,1), opacity .4s; }
 .w3-out .enter { animation: rise .55s cubic-bezier(.2,.9,.25,1.05) both; animation-delay: var(--d, 0ms); }
@@ -177,8 +178,8 @@ h2 { font: 400 30px/1.05 var(--serif); margin: 0 0 4px; }
 .amt-sub b { color: var(--ink-2); }
 .amt-sub .over { color: var(--bad); }
 #payStage .wopen, #countStage .wopen { position: relative; width: 340px; height: 300px; transform-origin: center; }
-#payStage .wopen { height: 250px; overflow: hidden; -webkit-mask: linear-gradient(#000 82%, transparent); mask: linear-gradient(#000 80%, transparent); }
-#payStage .w3 { top: 90px; }
+#payStage .wopen { height: 262px; overflow: hidden; -webkit-mask: linear-gradient(#000 82%, transparent); mask: linear-gradient(#000 80%, transparent); }
+#payStage .w3 { top: 102px; }
 .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 10px; }
 .key { height: clamp(38px, 6.2dvh, 54px); border: 0; border-radius: 14px; background: transparent; font: 600 clamp(20px, 3dvh, 26px)/1 var(--sans); display: grid; place-items: center; }
 .key:active { background: var(--raised-2); }
