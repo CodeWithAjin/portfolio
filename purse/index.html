@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#0B0A09">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Purse">
+<meta name="description" content="A daily cash limit you can see. Notes leave the purse before money leaves your bank.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="app.css">
+<title>Purse</title>
+</head>
+<body>
+
+<!-- ============ SETUP (first launch) ============ -->
+<section class="screen" id="setup" hidden aria-labelledby="setupTitle">
+  <header class="top"><div class="wordmark" role="img" aria-label="Purse">pur<b>se</b></div></header>
+  <div>
+    <h1 id="setupTitle">How much will you<br><em>allow yourself</em> a day?</h1>
+    <p class="sub">Purse never holds money. This is a limit you set for yourself; it refills every morning.</p>
+  </div>
+  <div class="stage-center">
+    <div class="big-amt"><span class="cur">₹</span><span id="setupAmt">500</span></div>
+    <div class="stepper">
+      <button class="ib" type="button" data-step="-50" aria-label="Fifty less">−</button>
+      <div class="chips" role="group" aria-label="Daily limit">
+        <button class="chip" type="button" data-limit="300">₹300</button>
+        <button class="chip" type="button" data-limit="500">₹500</button>
+        <button class="chip" type="button" data-limit="1000">₹1,000</button>
+        <button class="chip" type="button" data-limit="2000">₹2,000</button>
+      </div>
+      <button class="ib" type="button" data-step="50" aria-label="Fifty more">+</button>
+    </div>
+  </div>
+  <div>
+    <p class="label">Money left at night</p>
+    <div class="seg" role="group" aria-label="Money left at night">
+      <button type="button" data-mode="reset">Resets each day</button>
+      <button type="button" data-mode="carry">Carries over</button>
+    </div>
+  </div>
+  <button class="btn gold" type="button" id="loadBtn">Load ₹500</button>
+</section>
+
+<!-- ============ HOME ============ -->
+<section class="screen" id="home" hidden aria-label="Purse">
+  <header class="top">
+    <div style="flex:1;min-width:0"><div class="wordmark" role="img" aria-label="Purse">pur<b>se</b></div><div class="date" id="today"></div></div>
+    <button class="ib" type="button" data-go="history" aria-label="Today’s payments"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg></button>
+    <button class="ib" type="button" data-go="settings" aria-label="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></button>
+  </header>
+  <div class="banner" id="remindBanner" hidden>
+    <span>Paid for anything outside Purse today?</span>
+    <button type="button" class="link" id="remindAdd">Add it</button>
+    <button type="button" class="x" id="remindX" aria-label="Dismiss">×</button>
+  </div>
+  <div class="stage" id="homeStage">
+    <button class="wbox" id="walletBtn" type="button" aria-label="Open purse" aria-expanded="false">
+      <div class="wclosed leather" aria-hidden="true"><div class="mono">P</div><div class="tab leather"></div></div>
+      <div class="wopen" id="homeWallet" aria-hidden="true"></div>
+      <div class="wfloor" aria-hidden="true"></div>
+    </button>
+  </div>
+  <div class="under">
+    <p class="hint" id="homeHint">Tap to open</p>
+    <button class="chip count-btn" type="button" id="countBtn" hidden><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Count my cash</button>
+  </div>
+  <button class="btn gold big" type="button" id="scanBtn"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg>Scan &amp; pay</button>
+  <p class="fine" id="homeFine">No money is held in Purse. It’s your daily limit.</p>
+</section>
+
+<!-- ============ PAY ============ -->
+<section class="screen" id="pay" hidden aria-label="Pay">
+  <header class="top">
+    <button class="ib" type="button" id="payBack" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="av" id="pAv" aria-hidden="true"></div>
+    <div class="payee-t"><b id="pName"></b><small id="pId"></small></div>
+    <span class="badge" id="pKind"></span>
+  </header>
+  <div class="amount" aria-live="polite">
+    <div class="amt-line"><span class="cur">₹</span><span class="val" id="amtVal">0</span></div>
+    <div class="amt-sub" id="amtSub">Type the amount</div>
+  </div>
+  <div class="stage" id="payStage"><div class="wopen" id="payWallet" aria-hidden="true"></div></div>
+  <div class="keypad" id="keypad" role="group" aria-label="Amount keypad">
+    <button class="key" type="button" data-k="1">1</button><button class="key" type="button" data-k="2">2</button><button class="key" type="button" data-k="3">3</button>
+    <button class="key" type="button" data-k="4">4</button><button class="key" type="button" data-k="5">5</button><button class="key" type="button" data-k="6">6</button>
+    <button class="key" type="button" data-k="7">7</button><button class="key" type="button" data-k="8">8</button><button class="key" type="button" data-k="9">9</button>
+    <button class="key" type="button" data-k="00">00</button><button class="key" type="button" data-k="0">0</button>
+    <button class="key" type="button" data-k="del" aria-label="Delete (hold to clear)"><svg viewBox="0 0 24 24"><path d="M21 5H9l-6 7 6 7h12a1 1 0 001-1V6a1 1 0 00-1-1z"/><path d="M17 9l-5 6M12 9l5 6"/></svg></button>
+  </div>
+  <div class="payrow">
+    <a class="paybtn" id="primary" role="button" aria-disabled="true">
+      <span class="ai" id="primaryIcon"></span>
+      <span class="t"><span id="primaryLabel">Enter amount</span><small id="primarySub"></small></span>
+    </a>
+    <div class="others" id="others" role="group" aria-label="Other payment apps"></div>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section class="screen" id="history" hidden aria-labelledby="hTitle">
+  <header class="top">
+    <button class="ib" type="button" data-go="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h2 id="hTitle" style="flex:1">Today</h2>
+  </header>
+  <div class="tiles">
+    <div class="tile"><span class="label">Spent</span><b id="hSpent"></b></div>
+    <div class="tile"><span class="label">Left</span><b id="hLeft" class="gold"></b></div>
+  </div>
+  <div class="scroll" id="hList"></div>
+  <button class="btn" type="button" id="addOutside"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a payment made outside Purse</button>
+</section>
+
+<!-- ============ SETTINGS ============ -->
+<section class="screen" id="settings" hidden aria-labelledby="sTitle">
+  <header class="top">
+    <button class="ib" type="button" data-go="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <h2 id="sTitle" style="flex:1">Settings</h2>
+  </header>
+  <div class="scroll">
+    <div class="set"><div><b>Daily limit</b><small>Refills at midnight</small></div>
+      <div class="mini-step"><button class="ib" type="button" data-lim="-50" aria-label="Fifty less">−</button><span id="sLimit"></span><button class="ib" type="button" data-lim="50" aria-label="Fifty more">+</button></div></div>
+    <div class="set"><div><b>Money left at night</b><small>What happens to unspent cash</small></div>
+      <div class="seg small" role="group" aria-label="Money left at night"><button type="button" data-mode="reset">Reset</button><button type="button" data-mode="carry">Carry</button></div></div>
+    <div class="set col"><div><b>Usual payment app</b><small>Shown as the main Pay button</small></div>
+      <div class="apps-pick" id="usualPick" role="group" aria-label="Usual payment app"></div></div>
+    <div class="set"><div><b>Evening reminder</b><small>After 9 pm, ask about payments made outside Purse</small></div>
+      <button class="toggle" type="button" role="switch" id="tRemind" aria-label="Evening reminder"></button></div>
+    <div class="set"><div><b>Animations</b><small>Off also when your phone uses Reduce Motion</small></div>
+      <button class="toggle" type="button" role="switch" id="tAnim" aria-label="Animations"></button></div>
+    <div class="set"><div><b>Export history</b><small>Copies everything as a spreadsheet</small></div>
+      <button class="chip" type="button" id="exportBtn">Copy</button></div>
+    <div class="set"><div><b>Start over</b><small>Deletes your limit and history on this phone</small></div>
+      <button class="chip danger" type="button" id="wipeBtn">Erase</button></div>
+    <p class="fine" style="margin-top:22px">Purse holds no money and never sees your UPI PIN.<br>Everything stays on this phone.</p>
+  </div>
+</section>
+
+<!-- ============ COUNT overlay ============ -->
+<div class="count" id="count" hidden role="dialog" aria-modal="true" aria-label="Count my cash">
+  <div class="count-in">
+    <button class="ib" type="button" id="countClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="count-head"><p class="label">Left today</p>
+      <div class="big-amt"><span class="cur">₹</span><span id="countVal">0</span></div>
+      <p class="sub" id="countSub"></p></div>
+    <div class="stage" id="countStage"><div class="wopen" id="countWallet" aria-hidden="true"></div></div>
+    <div><div class="spent-row"><span>Spent today</span><b id="countSpent"></b></div><div class="bar"><b id="countBar"></b></div></div>
+    <p class="fine">Tap anywhere to close</p>
+  </div>
+</div>
+
+<!-- ============ camera ============ -->
+<div class="cam" id="cam" hidden role="dialog" aria-modal="true" aria-label="Scan a UPI QR">
+  <video id="video" playsinline muted></video>
+  <div class="cam-ui">
+    <div class="cam-top"><b>Scan to pay</b><button class="ib dark" type="button" id="camClose" aria-label="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="frame" aria-hidden="true"></div>
+    <p class="cam-msg" id="camMsg">Point at any UPI QR</p>
+    <div class="cam-actions">
+      <label class="pill"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>Photo<input id="photo" type="file" accept="image/*" aria-label="Pick a photo of a QR code"></label>
+      <button class="pill" type="button" id="typeId"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 006 0v-1a10 10 0 10-4 8"/></svg>UPI ID</button>
+    </div>
+  </div>
+</div>
+
+<div id="sheets"></div>
+
+<!-- sheet templates -->
+<template id="t-id">
+  <h2>Pay a UPI ID</h2>
+  <p class="lead">Or paste the text from a UPI QR.</p>
+  <form id="idForm" novalidate>
+    <div class="field"><label for="vpa">UPI ID</label><input id="vpa" type="text" inputmode="email" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="off" placeholder="name@bank"></div>
+    <div class="field"><label for="pname">Name (optional)</label><input id="pname" type="text" autocomplete="off" placeholder="Shown in the payment app"></div>
+    <p class="err" id="vpaErr" role="alert"></p>
+    <button class="btn gold" type="submit">Continue</button>
+  </form>
+</template>
+<template id="t-warn">
+  <div class="warn-notes" id="warnNotes"></div>
+  <h2 id="warnTitle"></h2>
+  <p class="lead" id="warnLead"></p>
+  <button class="btn" type="button" id="warnChange">Change amount</button>
+  <a class="btn danger" id="warnGo" role="button" style="margin-top:10px"></a>
+  <p class="fine">Purse never blocks a payment. It only makes it visible.</p>
+</template>
+<template id="t-confirm">
+  <h2 id="cTitle"></h2>
+  <p class="lead" id="cLead"></p>
+  <div class="opts">
+    <button class="opt good" type="button" data-o="paid"><i>✓</i>Yes, paid. Let the notes go</button>
+    <button class="opt bad" type="button" data-o="notpaid"><i>↩</i>No. Put the notes back</button>
+    <button class="opt" type="button" data-o="retry"><i>⟳</i>Try another app</button>
+  </div>
+</template>
+<template id="t-entry">
+  <h2 id="eTitle">Add a payment</h2>
+  <p class="lead" id="eLead">Something you paid outside Purse. It comes out of today’s cash.</p>
+  <form id="eForm" novalidate>
+    <div class="field"><label for="eName">What for</label><input id="eName" type="text" autocomplete="off" placeholder="e.g. Auto fare"></div>
+    <div class="field"><label for="eAmt">Amount (₹)</label><input id="eAmt" type="text" inputmode="numeric" autocomplete="off" placeholder="0"></div>
+    <p class="err" id="eErr" role="alert"></p>
+    <button class="btn gold" type="submit" id="eSave">Take it out of the purse</button>
+    <button class="btn danger" type="button" id="eDel" hidden style="margin-top:10px">Undo this payment</button>
+  </form>
+</template>
+
+<script>
+  function loadAlt(src) { var s = document.createElement('script'); s.src = src; document.head.appendChild(s); }
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js" onerror="loadAlt('https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js')" defer></script>
+<script src="currency.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
