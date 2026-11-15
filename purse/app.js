@@ -235,7 +235,7 @@
       var all = breakdown(amount), notes = all.filter(function (v) { return v >= 10; }).slice(0, 6), coins = all.filter(function (v) { return v < 10; }).slice(0, 4);
       var want = {}, seen = {};
       function key(kind, v) { var b = kind + v; seen[b] = (seen[b] || 0) + 1; return b + '#' + seen[b]; }
-      var m = notes.length, NW = m <= 2 ? 232 : m <= 4 ? 214 : 196, xL = -4, xR = 344 - NW;
+      var m = notes.length, NW = m <= 2 ? 232 : m <= 4 ? 214 : 196, xL = 12, xR = 328 - NW;
       notes.forEach(function (v, i) {
         var c = i - (m - 1) / 2;
         want[key('n', v)] = { kind: 'n', v: v, w: NW, x: (m === 1 ? (340 - NW) / 2 : xL + i * ((xR - xL) / (m - 1))), y: -96 + Math.abs(c) * 7, r: m > 1 ? c * (22 / (m - 1)) : -3, z: 30 + i };
