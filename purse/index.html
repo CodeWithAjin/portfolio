@@ -71,7 +71,12 @@
   </div>
   <div class="under">
     <p class="hint" id="homeHint">Tap to open</p>
-    <button class="chip count-btn" type="button" id="countBtn" hidden><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Count my cash</button>
+    <div class="limit" id="limitBox" hidden>
+      <div class="limit-row"><span><b id="limLeft"></b><span id="limWord"> left</span></span>
+        <button class="chip count-btn" type="button" id="countBtn"><svg viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>Count</button></div>
+      <div class="limit-bar" role="progressbar" id="limBar" aria-valuemin="0"><b id="limFill"></b></div>
+      <div class="limit-row small"><span id="limSpent"></span><span id="limOf"></span></div>
+    </div>
   </div>
   <button class="btn gold big" type="button" id="scanBtn"><svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 012-2h2M16 4h2a2 2 0 012 2v2M20 16v2a2 2 0 01-2 2h-2M8 20H6a2 2 0 01-2-2v-2"/><rect x="8" y="8" width="8" height="8" rx="1.5"/></svg>Scan &amp; pay</button>
   <p class="fine" id="homeFine">No money is held in Purse. It’s your daily limit.</p>

@@ -345,14 +345,31 @@
     $('walletBtn').setAttribute('aria-expanded', v ? 'true' : 'false');
     $('walletBtn').setAttribute('aria-label', v ? 'Close purse. ' + fmt(Math.max(0, st.balance)) + ' inside' : 'Open purse');
     $('homeHint').textContent = v ? 'Tap the purse to close' : 'Tap to open';
-    $('countBtn').hidden = !v;
     $('homeHint').hidden = v;
+    $('limitBox').hidden = !v;
+    if (v) renderLimit(); else $('limFill').style.width = '0';
+    requestAnimationFrame(fitAll);
   }
   $('walletBtn').addEventListener('click', function () { setOpen(!isOpen); });
+  function renderLimit() {
+    var lim = st.limit, bal = st.balance, spent = spentToday(), over = bal < 0;
+    var box = $('limitBox');
+    box.classList.toggle('over', over);
+    box.classList.toggle('low', !over && lim > 0 && bal / lim < .2);
+    $('limLeft').textContent = over ? fmt(-bal) : fmt(bal);
+    $('limWord').textContent = over ? ' over' : ' left';
+    $('limOf').textContent = 'of ' + fmt(lim) + ' today';
+    $('limSpent').textContent = 'Spent ' + fmt(spent) + ' · ' + todays().length + ' payment' + (todays().length === 1 ? '' : 's');
+    var pct = over ? 100 : lim ? Math.max(0, Math.min(100, bal / lim * 100)) : 0;
+    var bar = $('limBar'); bar.setAttribute('aria-valuemax', lim); bar.setAttribute('aria-valuenow', Math.max(0, bal));
+    bar.setAttribute('aria-label', over ? fmt(-bal) + ' over your ' + fmt(lim) + ' limit' : fmt(bal) + ' left of ' + fmt(lim));
+    requestAnimationFrame(function () { $('limFill').style.width = pct + '%'; });
+  }
   function renderHome() {
     rollover();
     $('today').textContent = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' });
     homeW.setCards(); homeW.setStanding(st.balance);
+    if (isOpen) renderLimit();
     var late = new Date().getHours() >= 21;
     $('remindBanner').hidden = !(st.remind && late && st.remindSeen !== dayKey());
     var standalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
@@ -389,7 +406,7 @@
     })(t0);
     $('countClose').focus({ preventScroll: true });
   }
-  $('count').addEventListener('click', function () { $('count').hidden = true; $('countBtn').focus({ preventScroll: true }); });
+  $('count').addEventListener('click', function () { $('count').hidden = true; try { $('countBtn').focus({ preventScroll: true }); } catch (e) {} });
 
   /* ================= scanning ================= */
   var qr = null, typedName = '';
