@@ -304,7 +304,7 @@
     show(name);
   }
   window.addEventListener('popstate', function (e) {
-    if (!$('cam').hidden) { stopCam(); }
+    if (!$('cam').hidden) { stopCam(); if (e.state && e.state.s === screen) return; }
     if (sheetOpen) closeSheet();
     if (!$('count').hidden) { $('count').hidden = true; }
     var s = (e.state && e.state.s) || (st.setup ? 'home' : 'setup');
@@ -410,9 +410,11 @@
   }
   var stream = null, scanning = false;
   function stopCam() { scanning = false; if (stream) stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; $('cam').hidden = true; }
+  function closeCam() { if (history.state && history.state.cam) history.back(); else stopCam(); }
   function camMsg(t) { $('camMsg').textContent = t; }
   $('scanBtn').addEventListener('click', function () {
     $('cam').hidden = false; camMsg('Point at any UPI QR');
+    try { history.pushState({ s: screen, cam: 1 }, ''); } catch (e) {}
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { camMsg('Camera isn’t available here. Use Photo or UPI ID.'); return; }
     // Ask for a sharp picture: iPhone hands web pages 640x480 unless asked for more.
     navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false }).then(function (s) {
@@ -448,7 +450,7 @@
       })(0);
     }).catch(function () { camMsg('Camera is blocked. Allow it in Settings, or use Photo or UPI ID.'); });
   });
-  $('camClose').addEventListener('click', stopCam);
+  $('camClose').addEventListener('click', closeCam);
   $('photo').addEventListener('change', function (e) {
     var file = e.target.files[0]; e.target.value = '';
     if (!file) return;
@@ -485,9 +487,11 @@
     if (p.format === 'vpa') { p = parseQr('upi://pay?pa=' + encVpa(p.pa)); p.typed = true; }
     qr = p; typedName = name || '';
     amount = p.am ? Math.round(parseFloat(p.am)) || 0 : 0;
+    var fromCam = history.state && history.state.cam;
     closeSheet(true); stopCam();
     if (navigator.vibrate) navigator.vibrate(25);
-    go('pay');
+    if (fromCam) { try { history.replaceState({ s: 'pay' }, ''); } catch (e) {} show('pay'); }
+    else go('pay');
     return '';
   }
 
@@ -568,7 +572,7 @@
     }
   });
   document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') { if (!$('cam').hidden) stopCam(); else if (sheetOpen) closeSheet(); else if (!$('count').hidden) $('count').hidden = true; return; }
+    if (e.key === 'Escape') { if (!$('cam').hidden) closeCam(); else if (sheetOpen) closeSheet(); else if (!$('count').hidden) $('count').hidden = true; return; }
     if (screen !== 'pay' || sheetOpen || e.metaKey || e.ctrlKey || e.altKey) return;
     if (/^[0-9]$/.test(e.key)) { e.preventDefault(); press(e.key); }
     else if (e.key === 'Backspace') { e.preventDefault(); press('del'); }

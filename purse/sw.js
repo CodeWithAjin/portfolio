@@ -1,6 +1,6 @@
 /* Purse service worker: opens instantly and works offline
    (the purse, history and scanning need no network). */
-var VERSION = 'purse-v1-2';
+var VERSION = 'purse-v1-3';
 var SHELL = [
   './',
   './index.html',
